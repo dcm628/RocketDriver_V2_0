@@ -1,5 +1,54 @@
 #include "ControlFunctionsRenegadeSF.h"
 
+// -------------------------------------------------------------
+// CONFIRM All DEFINES MATCH DEVICE DEFINITIONS
+// valveArray position defines for pointers
+#define HiPress_ArrayPointer 0
+#define HiPressVent_ArrayPointer 1
+#define LoxMV_ArrayPointer 2
+#define FuelMV_ArrayPointer 3
+#define LoxVent_ArrayPointer 4
+#define LoxDomeReg_ArrayPointer 5
+#define LoxDomeRegVent_ArrayPointer 6
+#define FuelVent_ArrayPointer 7
+#define FuelDomeReg_ArrayPointer 8
+#define FuelDomeRegVent_ArrayPointer 9
+
+// pyroArray position defines for pointers
+#define EngineIgniter0_ArrayPointer 0
+#define EngineIgniter1_ArrayPointer 1
+
+// autosequenceArray position defines for pointers
+#define IgnitionAutoSequence 0
+
+// sensorArray position defines for pointers
+#define ThrustMountLoadCell1pos_ArrayPointer 0
+#define ThrustMountLoadCell1neg_ArrayPointer 1
+#define ThrustMountLoadCell2pos_ArrayPointer 2
+#define ThrustMountLoadCell2neg_ArrayPointer 3
+#define ThrustMountLoadCell3pos_ArrayPointer 4
+#define ThrustMountLoadCell3neg_ArrayPointer 5
+#define ChamberPT2_ArrayPointer 6
+#define ChamberPT1_ArrayPointer 7
+#define FuelInletPropSidePT_ArrayPointer 8
+#define FuelInjectorPT_ArrayPointer 9
+#define LoxInletPropSidePT_ArrayPointer 10
+#define MVPneumaticsPT_ArrayPointer 11
+#define DomeRegFuelPT_ArrayPointer 12
+#define DomeRegLoxPT_ArrayPointer 13
+#define FuelTankPT_ArrayPointer 14
+#define LoxTankPT_ArrayPointer 15
+#define HiPressFuelPT_ArrayPointer 16
+#define HiPressLoxPT_ArrayPointer 17
+#define MCUtempNode2_ArrayPointer 18
+#define MCUtempNode3_ArrayPointer 19
+
+// actuator position defines for pointers
+#define Engine1TVC_Y_ArrayPointer 0
+#define Engine1TVC_Z_ArrayPointer 2
+
+
+// -------------------------------------------------------------
 
 void startupStateCheck(const State& currentState, Command& currentCommand)
 {
@@ -40,7 +89,7 @@ void startupStateCheck(const State& currentState, Command& currentCommand)
     }
 }
 
-void haltFlagCheck(bool & haltFlag, const std::array<Valve*, NUM_VALVES>& valveArray, const std::array<Pyro*, NUM_PYROS>& pyroArray)
+/* void haltFlagCheck(bool & haltFlag, const std::array<Valve*, NUM_VALVES>& valveArray, const std::array<Pyro*, NUM_PYROS>& pyroArray)
 {
     if(haltFlag)
     {
@@ -51,10 +100,10 @@ void haltFlagCheck(bool & haltFlag, const std::array<Valve*, NUM_VALVES>& valveA
     }
     
 
-}
+} */
 
 
-void commandExecute(State& currentState, State& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray, const std::array<Pyro*, NUM_PYROS>& pyroArray, const std::array<AutoSequence*, NUM_AUTOSEQUENCES>& autoSequenceArray, const std::array<MCU_SENSOR*, NUM_SENSORS>& sensorArray, bool & haltFlag)
+void vehicleStateMachine(State& currentState, State& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray, const std::array<Pyro*, NUM_PYROS>& pyroArray, const std::array<AutoSequence*, NUM_AUTOSEQUENCES>& autoSequenceArray, const std::array<MCU_SENSOR*, NUM_SENSORS>& sensorArray, bool & haltFlag)
 {
     switch (currentCommand)
     {
@@ -62,20 +111,18 @@ void commandExecute(State& currentState, State& priorState, Command& currentComm
             currentState = State::debug;
             break;
         case command_passive:
-            valveArray.at(0)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
-            valveArray.at(1)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
-            valveArray.at(2)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
-            valveArray.at(3)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
-            valveArray.at(4)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
-            valveArray.at(5)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
-            valveArray.at(6)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
-            valveArray.at(7)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
-            valveArray.at(8)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
-            valveArray.at(9)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
+            valveArray.at(HiPress_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
+            valveArray.at(HiPressVent_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
+            valveArray.at(LoxMV_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
+            valveArray.at(FuelMV_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
+            valveArray.at(LoxVent_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
+            valveArray.at(LoxDomeReg_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
+            valveArray.at(LoxDomeRegVent_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
+            valveArray.at(FuelVent_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
+            valveArray.at(FuelDomeReg_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
+            valveArray.at(FuelDomeRegVent_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
             pyroArray.at(0)->setState(PyroState::OffCommanded);             // Renegade SF Igniter1
             pyroArray.at(1)->setState(PyroState::OffCommanded);             // Renegade SF Igniter2
-            pyroArray.at(2)->setState(PyroState::OffCommanded);             // Pasafire Igniter1
-            pyroArray.at(3)->setState(PyroState::OffCommanded);             // Pasafire Igniter2
             sensorArray.at(0)->setState(SensorState::Medium);         // Renegade SF Stand - ThrustMountLoadCell1pos
             sensorArray.at(1)->setState(SensorState::Medium);         // Renegade SF Stand - ThrustMountLoadCell1neg
             sensorArray.at(2)->setState(SensorState::Medium);         // Renegade SF Stand - ThrustMountLoadCell2pos
@@ -654,16 +701,6 @@ void commandExecute(State& currentState, State& priorState, Command& currentComm
             sensorArray.at(14)->setState(SensorState::Off);        // Renegade SF Stand
             sensorArray.at(15)->setState(SensorState::Off);        // Renegade SF Stand
             sensorArray.at(16)->setState(SensorState::Off);        // Renegade SF Stand
-            sensorArray.at(17)->setState(SensorState::Off);        // Pasafire
-            sensorArray.at(18)->setState(SensorState::Off);        // Pasafire
-            sensorArray.at(19)->setState(SensorState::Off);        // Pasafire
-            sensorArray.at(20)->setState(SensorState::Off);        // Pasafire
-            sensorArray.at(21)->setState(SensorState::Off);        // Pasafire
-            sensorArray.at(22)->setState(SensorState::Off);        // Pasafire
-            sensorArray.at(23)->setState(SensorState::Off);        // Pasafire
-            sensorArray.at(24)->setState(SensorState::Off);        // Pasafire
-            sensorArray.at(25)->setState(SensorState::Off);        // Pasafire
-            sensorArray.at(26)->setState(SensorState::Off);        // Pasafire
             }            
             break;
         case command_allSensorsSlow:
@@ -686,16 +723,6 @@ void commandExecute(State& currentState, State& priorState, Command& currentComm
             sensorArray.at(14)->setState(SensorState::Slow);        // Renegade SF Stand
             sensorArray.at(15)->setState(SensorState::Slow);        // Renegade SF Stand
             sensorArray.at(16)->setState(SensorState::Slow);        // Renegade SF Stand
-            sensorArray.at(17)->setState(SensorState::Slow);        // Pasafire
-            sensorArray.at(18)->setState(SensorState::Slow);        // Pasafire
-            sensorArray.at(19)->setState(SensorState::Slow);        // Pasafire
-            sensorArray.at(20)->setState(SensorState::Slow);        // Pasafire
-            sensorArray.at(21)->setState(SensorState::Slow);        // Pasafire
-            sensorArray.at(22)->setState(SensorState::Slow);        // Pasafire
-            sensorArray.at(23)->setState(SensorState::Slow);        // Pasafire
-            sensorArray.at(24)->setState(SensorState::Slow);        // Pasafire
-            sensorArray.at(25)->setState(SensorState::Slow);        // Pasafire
-            sensorArray.at(26)->setState(SensorState::Slow);        // Pasafire
             }             
             break;
         case command_allSensorsMedium:
@@ -718,16 +745,6 @@ void commandExecute(State& currentState, State& priorState, Command& currentComm
             sensorArray.at(14)->setState(SensorState::Medium);        // Renegade SF Stand
             sensorArray.at(15)->setState(SensorState::Medium);        // Renegade SF Stand
             sensorArray.at(16)->setState(SensorState::Medium);        // Renegade SF Stand
-            sensorArray.at(17)->setState(SensorState::Medium);        // Pasafire
-            sensorArray.at(18)->setState(SensorState::Medium);        // Pasafire
-            sensorArray.at(19)->setState(SensorState::Medium);        // Pasafire
-            sensorArray.at(20)->setState(SensorState::Medium);        // Pasafire
-            sensorArray.at(21)->setState(SensorState::Medium);        // Pasafire
-            sensorArray.at(22)->setState(SensorState::Medium);        // Pasafire
-            sensorArray.at(23)->setState(SensorState::Medium);        // Pasafire
-            sensorArray.at(24)->setState(SensorState::Medium);        // Pasafire
-            sensorArray.at(25)->setState(SensorState::Medium);        // Pasafire
-            sensorArray.at(26)->setState(SensorState::Medium);        // Pasafire
             }             
             break;
         case command_allSensorsFast:
@@ -750,16 +767,6 @@ void commandExecute(State& currentState, State& priorState, Command& currentComm
             sensorArray.at(14)->setState(SensorState::Fast);        // Renegade SF Stand
             sensorArray.at(15)->setState(SensorState::Fast);        // Renegade SF Stand
             sensorArray.at(16)->setState(SensorState::Fast);        // Renegade SF Stand
-            sensorArray.at(17)->setState(SensorState::Fast);        // Pasafire
-            sensorArray.at(18)->setState(SensorState::Fast);        // Pasafire
-            sensorArray.at(19)->setState(SensorState::Fast);        // Pasafire
-            sensorArray.at(20)->setState(SensorState::Fast);        // Pasafire
-            sensorArray.at(21)->setState(SensorState::Fast);        // Pasafire
-            sensorArray.at(22)->setState(SensorState::Fast);        // Pasafire
-            sensorArray.at(23)->setState(SensorState::Fast);        // Pasafire
-            sensorArray.at(24)->setState(SensorState::Fast);        // Pasafire
-            sensorArray.at(25)->setState(SensorState::Fast);        // Pasafire
-            sensorArray.at(26)->setState(SensorState::Fast);        // Pasafire
             }            
             break;
         case command_allSensorsCalibration:
@@ -782,19 +789,33 @@ void commandExecute(State& currentState, State& priorState, Command& currentComm
             sensorArray.at(14)->setState(SensorState::Calibration);        // Renegade SF Stand
             sensorArray.at(15)->setState(SensorState::Calibration);        // Renegade SF Stand
             sensorArray.at(16)->setState(SensorState::Calibration);        // Renegade SF Stand
-            sensorArray.at(17)->setState(SensorState::Calibration);        // Pasafire
-            sensorArray.at(18)->setState(SensorState::Calibration);        // Pasafire
-            sensorArray.at(19)->setState(SensorState::Calibration);        // Pasafire
-            sensorArray.at(20)->setState(SensorState::Calibration);        // Pasafire
-            sensorArray.at(21)->setState(SensorState::Calibration);        // Pasafire
-            sensorArray.at(22)->setState(SensorState::Calibration);        // Pasafire
-            sensorArray.at(23)->setState(SensorState::Calibration);        // Pasafire
-            sensorArray.at(24)->setState(SensorState::Calibration);        // Pasafire
-            sensorArray.at(25)->setState(SensorState::Calibration);        // Pasafire
-            sensorArray.at(26)->setState(SensorState::Calibration);        // Pasafire
             }            
             break;
         default:
             break;
     }
+}
+
+// state machine for the mission state (launch, ascent, apogee, descent et cetera)
+void missionStateMachine(State& currentState, State& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray, const std::array<Pyro*, NUM_PYROS>& pyroArray, const std::array<AutoSequence*, NUM_AUTOSEQUENCES>& autoSequenceArray, const std::array<MCU_SENSOR*, NUM_SENSORS>& sensorArray, bool &HaltFlag)
+{
+
+}
+
+// Controller for bang on/off tank pressurization
+void bangerPress(State& currentState, State& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray)
+{
+
+}
+
+// Controller for roll control RCS
+void rollRCS(State& currentState, State& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray)
+{
+
+}
+
+// Controller for TVC
+void thrustVectorControl(State& currentState, State& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray)
+{
+
 }

@@ -7,6 +7,7 @@
 // Use top level define conditional to determine which system the code is operating
 #define RENEGADESF
 
+//----- Renegade Static Fire Stand -----
 #ifdef RENEGADESF
 #include "ValveDefinitionsRenegadeSF.h"
 #include "PyroDefinitionsRenegadeSF.h"
@@ -15,14 +16,14 @@
 #include "ControlFunctionsRenegadeSF.h"
 #endif
 
-/* //----- BabyShark -----
+//----- BabyShark -----
 #ifdef BABYSHARK
 #include "ValveDefinitionsRenegadeBabyShark.h"
 #include "PyroDefinitionsRenegadeBabyShark.h"
 #include "AutoSequenceDefinitionsRenegadeBabyShark.h"
 #include "SensorDefinitionsRenegadeBabyShark.h"
 #include "ControlFunctionsRenegadeBabyShark.h"
-#endif */
+#endif
 // -------------------------------------------------------------
 
 #include <Arduino.h>
@@ -263,11 +264,11 @@ Serial.println(timeSubSecondsMicros); */
 
 
   // -----Process Commands Here-----
-  commandExecute(currentState, priorState, currentCommand, valveArray, pyroArray, autoSequenceArray, sensorArray, abortHaltFlag);
+  vehicleStateMachine(currentState, priorState, currentCommand, valveArray, pyroArray, autoSequenceArray, sensorArray, abortHaltFlag);
 
   ////// ABORT FUNCTIONALITY!!!///// This is what overrides main valve and igniter processes! /////
   ////// DO NOT MOVE BEFORE "commandExecute" or after "valveTasks"/"pyroTasks"!!! /////
-  haltFlagCheck(abortHaltFlag, valveArray, pyroArray);
+  //haltFlagCheck(abortHaltFlag, valveArray, pyroArray);
 
   // -----Advance needed propulsion system tasks (valve, valve enables, pyro, autosequences) ----- //
   autoSequenceTasks(autoSequenceArray,nodeID);
