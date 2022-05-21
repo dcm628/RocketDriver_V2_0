@@ -3,7 +3,7 @@
 
 // This header defines all the tracked states the system an be in, using an enum class for protection
 
-enum class State
+enum class VehicleState
 {
     // These are the God States, they can be reached from any position
     setup,      // 0
@@ -25,5 +25,12 @@ enum class State
 
 };
 
-
+enum class MissionState
+{
+    // These are the God States, they can be reached from any position
+    passive,      // 0
+    prelaunch,      // 1   the outputs disabled for testing state?
+    ascentRail,    // 2
+    ascentFree,       // 3
+};
 #endif
