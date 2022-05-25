@@ -45,43 +45,43 @@
 
 // actuator position defines for pointers
 #define Engine1TVC_Y_ArrayPointer 0
-#define Engine1TVC_Z_ArrayPointer 2
+#define Engine1TVC_Z_ArrayPointer 1
 
 
 // -------------------------------------------------------------
 
-void startupStateCheck(const State& currentState, Command& currentCommand)
+void startupStateCheck(const VehicleState& currentState, Command& currentCommand)
 {
     switch (currentState)
     {
-    case State::passive:
+    case VehicleState::passive:
         currentCommand = command_passive;
         break;
-    case State::test:
+    case VehicleState::test:
         currentCommand = command_test;
         break;
-    case State::HiPressArm:
+    case VehicleState::HiPressArm:
         currentCommand = command_HiPressArm;
         break;
-    case State::HiPressPressurized:
+    case VehicleState::HiPressPressurized:
         currentCommand = command_HiPressPressurized;
         break;
-    case State::TankPressArm:
+    case VehicleState::TankPressArm:
         currentCommand = command_TankPressArm;
         break;
-    case State::TankPressPressurized:
+    case VehicleState::TankPressPressurized:
         currentCommand = commend_TankPressPressurized;
         break;
-    case State::fireArmed:
+    case VehicleState::fireArmed:
         currentCommand = command_fireArm;
         break;
-    case State::fire: // if we powercycle mid fire, we just vent (maybe shouldn't always be true with multinode systems)
+    case VehicleState::fire: // if we powercycle mid fire, we just vent (maybe shouldn't always be true with multinode systems)
         currentCommand = command_abort;
         break;
-    case State::abort:
+    case VehicleState::abort:
         currentCommand = command_abort;
         break;
-    case State::vent:
+    case VehicleState::vent:
         currentCommand = command_vent;
         break;
     default:
@@ -89,26 +89,13 @@ void startupStateCheck(const State& currentState, Command& currentCommand)
     }
 }
 
-/* void haltFlagCheck(bool & haltFlag, const std::array<Valve*, NUM_VALVES>& valveArray, const std::array<Pyro*, NUM_PYROS>& pyroArray)
-{
-    if(haltFlag)
-    {
-        valveArray.at(8)->setState(ValveState::CloseCommanded);     // Renegade SF Stand MV
-        valveArray.at(9)->setState(ValveState::CloseCommanded);     // Renegade SF Stand MV
-        pyroArray.at(0)->setState(PyroState::OffCommanded);         // Renegade SF Igniter1
-        pyroArray.at(1)->setState(PyroState::OffCommanded);         // Renegade SF Igniter2
-    }
-    
 
-} */
-
-
-void vehicleStateMachine(State& currentState, State& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray, const std::array<Pyro*, NUM_PYROS>& pyroArray, const std::array<AutoSequence*, NUM_AUTOSEQUENCES>& autoSequenceArray, const std::array<MCU_SENSOR*, NUM_SENSORS>& sensorArray, bool & haltFlag)
+void vehicleStateMachine(VehicleState& currentState, VehicleState& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray, const std::array<Pyro*, NUM_PYROS>& pyroArray, const std::array<AutoSequence*, NUM_AUTOSEQUENCES>& autoSequenceArray, const std::array<MCU_SENSOR*, NUM_SENSORS>& sensorArray, bool & haltFlag)
 {
     switch (currentCommand)
     {
         case command_debug:
-            currentState = State::debug;
+            currentState = VehicleState::debug;
             break;
         case command_passive:
             valveArray.at(HiPress_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
@@ -143,28 +130,28 @@ void vehicleStateMachine(State& currentState, State& priorState, Command& curren
             sensorArray.at(17)->setState(SensorState::Medium);        // Renegade SF Stand - HiPressLoxPT
             sensorArray.at(18)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode2
             sensorArray.at(19)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode3
-            currentState = State::passive;
+            currentState = VehicleState::passive;
             haltFlag = false;
             break;
         case command_test:
-            if(currentState == State::passive)
+            if(currentState == VehicleState::passive)
             {
-            currentState = State::test;
+            currentState = VehicleState::test;
             }
             break;
         case command_EnterOffNominal:
             priorState = currentState; //for remembering the state the system was in when entering Off Nominal
-            currentState = State::offNominal;
+            currentState = VehicleState::offNominal;
             break;            
         case command_ExitOffNominal:
-            if(currentState == State::offNominal)
+            if(currentState == VehicleState::offNominal)
             {
             currentState = priorState;              //IS THIS STILL TRUE???? - Beware, this currently doesn't function fully as desired. Will leave ValveEnables all on and not actually enter the prior command
             }
             break;
         case command_abort:
             haltFlag = true;
-            currentState = State::abort;
+            currentState = VehicleState::abort;
             autoSequenceArray.at(0)->setState(AutoSequenceState::Hold);     // Renegade SF Stand
             break;
         case command_vent:
@@ -201,11 +188,11 @@ void vehicleStateMachine(State& currentState, State& priorState, Command& curren
             sensorArray.at(17)->setState(SensorState::Medium);        // Renegade SF Stand - HiPressLoxPT
             sensorArray.at(18)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode2
             sensorArray.at(19)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode3
-            currentState = State::vent;
+            currentState = VehicleState::vent;
             break;
 // Fire Sequence commands will only be executed from the proper state
         case command_HiPressArm:
-            if(currentState == State::passive)
+            if(currentState == VehicleState::passive)
             {
             valveArray.at(0)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
             valveArray.at(1)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
@@ -240,11 +227,11 @@ void vehicleStateMachine(State& currentState, State& priorState, Command& curren
             sensorArray.at(17)->setState(SensorState::Fast);        // Renegade SF Stand - HiPressLoxPT
             sensorArray.at(18)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode2
             sensorArray.at(19)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode3
-            currentState = State::HiPressArm;
+            currentState = VehicleState::HiPressArm;
             }
             break;
         case command_HiPressPressurized:
-            if(currentState == State::HiPressArm || currentState == State::TankPressArm) //added second conditional to allow entry backwards in a "disarm" state change
+            if(currentState == VehicleState::HiPressArm || currentState == VehicleState::TankPressArm) //added second conditional to allow entry backwards in a "disarm" state change
             {
             valveArray.at(0)->setState(ValveState::OpenCommanded);          // Renegade SF Stand
             valveArray.at(1)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
@@ -279,11 +266,11 @@ void vehicleStateMachine(State& currentState, State& priorState, Command& curren
             sensorArray.at(17)->setState(SensorState::Fast);        // Renegade SF Stand - HiPressLoxPT
             sensorArray.at(18)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode2
             sensorArray.at(19)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode3
-            currentState = State::HiPressPressurized;
+            currentState = VehicleState::HiPressPressurized;
             }
             break;
         case command_TankPressArm:
-            if(currentState == State::HiPressPressurized)
+            if(currentState == VehicleState::HiPressPressurized)
             {
             valveArray.at(0)->setState(ValveState::OpenCommanded);          // Renegade SF Stand
             valveArray.at(1)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
@@ -318,11 +305,11 @@ void vehicleStateMachine(State& currentState, State& priorState, Command& curren
             sensorArray.at(17)->setState(SensorState::Fast);        // Renegade SF Stand - HiPressLoxPT
             sensorArray.at(18)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode2
             sensorArray.at(19)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode3
-            currentState = State::TankPressArm;
+            currentState = VehicleState::TankPressArm;
             }
             break;
         case commend_TankPressPressurized:
-            if(currentState == State::TankPressArm)
+            if(currentState == VehicleState::TankPressArm)
             {
             valveArray.at(0)->setState(ValveState::OpenCommanded);          // Renegade SF Stand
             valveArray.at(1)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
@@ -357,11 +344,11 @@ void vehicleStateMachine(State& currentState, State& priorState, Command& curren
             sensorArray.at(17)->setState(SensorState::Fast);        // Renegade SF Stand - HiPressLoxPT
             sensorArray.at(18)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode2
             sensorArray.at(19)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode3
-            currentState = State::TankPressPressurized;
+            currentState = VehicleState::TankPressPressurized;
             }
             break;
         case command_fireArm:
-            if(currentState == State::TankPressPressurized)
+            if(currentState == VehicleState::TankPressPressurized)
             {
             valveArray.at(0)->setState(ValveState::CloseCommanded);          // Renegade SF Stand
             valveArray.at(1)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
@@ -396,11 +383,11 @@ void vehicleStateMachine(State& currentState, State& priorState, Command& curren
             sensorArray.at(17)->setState(SensorState::Fast);        // Renegade SF Stand - HiPressLoxPT
             sensorArray.at(18)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode2
             sensorArray.at(19)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode3
-            currentState = State::fireArmed;
+            currentState = VehicleState::fireArmed;
             }
             break;
         case command_fire:
-            if(currentState == State::fireArmed)
+            if(currentState == VehicleState::fireArmed)
             {
             valveArray.at(0)->setState(ValveState::CloseCommanded);          // Renegade SF Stand
             valveArray.at(1)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
@@ -435,254 +422,254 @@ void vehicleStateMachine(State& currentState, State& priorState, Command& curren
             sensorArray.at(17)->setState(SensorState::Fast);        // Renegade SF Stand - HiPressLoxPT
             sensorArray.at(18)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode2
             sensorArray.at(19)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode3
-            currentState = State::fire;
+            currentState = VehicleState::fire;
             }
             break;
 
 
         case command_closeHiPress:
-            if(currentState == State::test)
+            if(currentState == VehicleState::test)
             {
                 valveArray.at(0)->setState(ValveState::CloseCommanded);
             }
-            else if (currentState == State::offNominal)
+            else if (currentState == VehicleState::offNominal)
             {
                 valveArray.at(0)->setState(ValveState::CloseCommanded);
             }
             break;
         case command_openHiPress:
-             if(currentState == State::test)
+             if(currentState == VehicleState::test)
             {
                 valveArray.at(0)->setState(ValveState::OpenCommanded);
             }
-            else if (currentState == State::offNominal)
+            else if (currentState == VehicleState::offNominal)
             {
                 valveArray.at(0)->setState(ValveState::OpenCommanded);
             }
             break;
         case command_closeHiPressVent:
-            if(currentState == State::test)
+            if(currentState == VehicleState::test)
             {
                 valveArray.at(1)->setState(ValveState::CloseCommanded);
             }
-            else if (currentState == State::offNominal)
+            else if (currentState == VehicleState::offNominal)
             {
                 valveArray.at(1)->setState(ValveState::CloseCommanded);
             }            
             break;
         case command_openHiPressVent:
-             if(currentState == State::test)
+             if(currentState == VehicleState::test)
             {
                 valveArray.at(1)->setState(ValveState::OpenCommanded);
             }
-            else if (currentState == State::offNominal)
+            else if (currentState == VehicleState::offNominal)
             {
                 valveArray.at(1)->setState(ValveState::OpenCommanded);
             }              
             break;
         case command_closeLoxVent:
-            if(currentState == State::test)
+            if(currentState == VehicleState::test)
             {
                 valveArray.at(2)->setState(ValveState::CloseCommanded);
             }
-            else if (currentState == State::offNominal)
+            else if (currentState == VehicleState::offNominal)
             {
                 valveArray.at(2)->setState(ValveState::CloseCommanded);
             }              
             break;
         case command_openLoxVent:
-             if(currentState == State::test)
+             if(currentState == VehicleState::test)
             {
                 valveArray.at(2)->setState(ValveState::OpenCommanded);
             }
-            else if (currentState == State::offNominal)
+            else if (currentState == VehicleState::offNominal)
             {
                 valveArray.at(2)->setState(ValveState::OpenCommanded);
             }              
             break;
         case command_closeLoxDomeReg:
-            if(currentState == State::test)
+            if(currentState == VehicleState::test)
             {
                 valveArray.at(3)->setState(ValveState::CloseCommanded);
             }
-            else if (currentState == State::offNominal)
+            else if (currentState == VehicleState::offNominal)
             {
                 valveArray.at(3)->setState(ValveState::CloseCommanded);
             }              
             break;
         case command_openLoxDomeReg:
-             if(currentState == State::test)
+             if(currentState == VehicleState::test)
             {
                 valveArray.at(3)->setState(ValveState::OpenCommanded);
             }
-            else if (currentState == State::offNominal)
+            else if (currentState == VehicleState::offNominal)
             {
                 valveArray.at(3)->setState(ValveState::OpenCommanded);
             }              
             break; 
         case command_closeLoxDomeRegVent:
-            if(currentState == State::test)
+            if(currentState == VehicleState::test)
             {
                 valveArray.at(4)->setState(ValveState::CloseCommanded);
             }
-            else if (currentState == State::offNominal)
+            else if (currentState == VehicleState::offNominal)
             {
                 valveArray.at(4)->setState(ValveState::CloseCommanded);
             }              
             break;
         case command_openLoxDomeRegVent:
-             if(currentState == State::test)
+             if(currentState == VehicleState::test)
             {
                 valveArray.at(4)->setState(ValveState::OpenCommanded);
             }
-            else if (currentState == State::offNominal)
+            else if (currentState == VehicleState::offNominal)
             {
                 valveArray.at(4)->setState(ValveState::OpenCommanded);
             }              
             break; 
         case command_closeFuelVent:
-            if(currentState == State::test)
+            if(currentState == VehicleState::test)
             {
                 valveArray.at(5)->setState(ValveState::CloseCommanded);
             }
-            else if (currentState == State::offNominal)
+            else if (currentState == VehicleState::offNominal)
             {
                 valveArray.at(5)->setState(ValveState::CloseCommanded);
             }              
             break;
         case command_openFuelVent:
-             if(currentState == State::test)
+             if(currentState == VehicleState::test)
             {
                 valveArray.at(5)->setState(ValveState::OpenCommanded);
             }
-            else if (currentState == State::offNominal)
+            else if (currentState == VehicleState::offNominal)
             {
                 valveArray.at(5)->setState(ValveState::OpenCommanded);
             }              
             break;
         case command_closeFuelDomeReg:
-            if(currentState == State::test)
+            if(currentState == VehicleState::test)
             {
                 valveArray.at(6)->setState(ValveState::CloseCommanded);
             }
-            else if (currentState == State::offNominal)
+            else if (currentState == VehicleState::offNominal)
             {
                 valveArray.at(6)->setState(ValveState::CloseCommanded);
             }              
             break;
         case command_openFuelDomeReg:
-             if(currentState == State::test)
+             if(currentState == VehicleState::test)
             {
                 valveArray.at(6)->setState(ValveState::OpenCommanded);
             }
-            else if (currentState == State::offNominal)
+            else if (currentState == VehicleState::offNominal)
             {
                 valveArray.at(6)->setState(ValveState::OpenCommanded);
             }              
             break; 
         case command_closeFuelDomeRegVent:
-            if(currentState == State::test)
+            if(currentState == VehicleState::test)
             {
                 valveArray.at(7)->setState(ValveState::CloseCommanded);
             }
-            else if (currentState == State::offNominal)
+            else if (currentState == VehicleState::offNominal)
             {
                 valveArray.at(7)->setState(ValveState::CloseCommanded);
             }              
             break;
         case command_openFuelDomeRegVent:
-             if(currentState == State::test)
+             if(currentState == VehicleState::test)
             {
                 valveArray.at(7)->setState(ValveState::OpenCommanded);
             }
-            else if (currentState == State::offNominal)
+            else if (currentState == VehicleState::offNominal)
             {
                 valveArray.at(7)->setState(ValveState::OpenCommanded);
             }              
             break; 
         case command_closeFuelMV:
-            if(currentState == State::test)
+            if(currentState == VehicleState::test)
             {
                 valveArray.at(8)->setState(ValveState::CloseCommanded);
             }
-            else if (currentState == State::offNominal)
+            else if (currentState == VehicleState::offNominal)
             {
                 valveArray.at(8)->setState(ValveState::CloseCommanded);
             }              
             break;
         case command_openFuelMV:
-             if(currentState == State::test)
+             if(currentState == VehicleState::test)
             {
                 valveArray.at(8)->setState(ValveState::OpenCommanded);
             }
-            else if (currentState == State::offNominal)
+            else if (currentState == VehicleState::offNominal)
             {
                 valveArray.at(8)->setState(ValveState::OpenCommanded);
             }              
             break;
         case command_closeLoxMV:
-            if(currentState == State::test)
+            if(currentState == VehicleState::test)
             {
                 valveArray.at(9)->setState(ValveState::CloseCommanded);
             }
-            else if (currentState == State::offNominal)
+            else if (currentState == VehicleState::offNominal)
             {
                 valveArray.at(9)->setState(ValveState::CloseCommanded);
             }              
             break;
         case command_openLoxMV:
-             if(currentState == State::test)
+             if(currentState == VehicleState::test)
             {
                 valveArray.at(9)->setState(ValveState::OpenCommanded);
             }
-            else if (currentState == State::offNominal)
+            else if (currentState == VehicleState::offNominal)
             {
                 valveArray.at(9)->setState(ValveState::OpenCommanded);
             }              
             break;
         case command_engineIgniterPyro1_Off:
-            if(currentState == State::test)
+            if(currentState == VehicleState::test)
             {
             pyroArray.at(0)->setState(PyroState::OffCommanded);             // Renegade SF Igniter1
             }
-            else if (currentState == State::offNominal)
+            else if (currentState == VehicleState::offNominal)
             {
             pyroArray.at(0)->setState(PyroState::OffCommanded);             // Renegade SF Igniter1
             }              
             break;
         case command_engineIgniterPyro1_On:
-            if(currentState == State::test)
+            if(currentState == VehicleState::test)
             {
             pyroArray.at(0)->setState(PyroState::OnCommanded);             // Renegade SF Igniter1
             }
-            else if (currentState == State::offNominal)
+            else if (currentState == VehicleState::offNominal)
             {
             pyroArray.at(0)->setState(PyroState::OnCommanded);             // Renegade SF Igniter1
             }              
             break;
         case command_engineIgniterPyro2_Off:
-            if(currentState == State::test)
+            if(currentState == VehicleState::test)
             {
             pyroArray.at(1)->setState(PyroState::OffCommanded);             // Renegade SF Igniter1
             }
-            else if (currentState == State::offNominal)
+            else if (currentState == VehicleState::offNominal)
             {
             pyroArray.at(1)->setState(PyroState::OffCommanded);             // Renegade SF Igniter1
             }              
             break;
         case command_engineIgniterPyro2_On:
-            if(currentState == State::test)
+            if(currentState == VehicleState::test)
             {
             pyroArray.at(1)->setState(PyroState::OnCommanded);             // Renegade SF Igniter1
             }
-            else if (currentState == State::offNominal)
+            else if (currentState == VehicleState::offNominal)
             {
             pyroArray.at(1)->setState(PyroState::OnCommanded);             // Renegade SF Igniter1
             }              
             break;
 
         case command_allSensorsOff:
-            if(currentState == State::test)
+            if(currentState == VehicleState::test)
             {
             sensorArray.at(0)->setState(SensorState::Off);         // Renegade SF Stand
             sensorArray.at(1)->setState(SensorState::Off);         // Renegade SF Stand
@@ -704,7 +691,7 @@ void vehicleStateMachine(State& currentState, State& priorState, Command& curren
             }            
             break;
         case command_allSensorsSlow:
-            if(currentState == State::test)
+            if(currentState == VehicleState::test)
             {
             sensorArray.at(0)->setState(SensorState::Slow);         // Renegade SF Stand
             sensorArray.at(1)->setState(SensorState::Slow);         // Renegade SF Stand
@@ -726,7 +713,7 @@ void vehicleStateMachine(State& currentState, State& priorState, Command& curren
             }             
             break;
         case command_allSensorsMedium:
-            if(currentState == State::test)
+            if(currentState == VehicleState::test)
             {
             sensorArray.at(0)->setState(SensorState::Medium);         // Renegade SF Stand
             sensorArray.at(1)->setState(SensorState::Medium);         // Renegade SF Stand
@@ -748,7 +735,7 @@ void vehicleStateMachine(State& currentState, State& priorState, Command& curren
             }             
             break;
         case command_allSensorsFast:
-            if(currentState == State::test)
+            if(currentState == VehicleState::test)
             {
             sensorArray.at(0)->setState(SensorState::Fast);         // Renegade SF Stand
             sensorArray.at(1)->setState(SensorState::Fast);         // Renegade SF Stand
@@ -770,7 +757,7 @@ void vehicleStateMachine(State& currentState, State& priorState, Command& curren
             }            
             break;
         case command_allSensorsCalibration:
-            if(currentState == State::test)
+            if(currentState == VehicleState::test)
             {
             sensorArray.at(0)->setState(SensorState::Calibration);         // Renegade SF Stand
             sensorArray.at(1)->setState(SensorState::Calibration);         // Renegade SF Stand
@@ -796,26 +783,37 @@ void vehicleStateMachine(State& currentState, State& priorState, Command& curren
     }
 }
 
+///// ----- NEW FUNCTIONS, WORK IN PROGRESS ----- /////
+
 // state machine for the mission state (launch, ascent, apogee, descent et cetera)
-void missionStateMachine(State& currentState, State& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray, const std::array<Pyro*, NUM_PYROS>& pyroArray, const std::array<AutoSequence*, NUM_AUTOSEQUENCES>& autoSequenceArray, const std::array<MCU_SENSOR*, NUM_SENSORS>& sensorArray, bool &HaltFlag)
+void missionStateMachine(VehicleState& currentState, VehicleState& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray, const std::array<Pyro*, NUM_PYROS>& pyroArray, const std::array<AutoSequence*, NUM_AUTOSEQUENCES>& autoSequenceArray, const std::array<MCU_SENSOR*, NUM_SENSORS>& sensorArray, bool &HaltFlag)
 {
 
 }
 
-// Controller for bang on/off tank pressurization
-void bangerPress(State& currentState, State& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray)
+// Controller for tank pressurization, dome regged or bang on/off
+void tankPress(VehicleState& currentState, VehicleState& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray)
 {
-
+    switch (currentCommand)
+    {
+        case command_debug:
+            currentState = VehicleState::debug;
+            break;
+        case command_passive:
+            valveArray.at(HiPress_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
+            currentState = VehicleState::vent;
+            break;
+    }
 }
 
 // Controller for roll control RCS
-void rollRCS(State& currentState, State& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray)
+void rollRCS(VehicleState& currentState, VehicleState& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray)
 {
 
 }
 
 // Controller for TVC
-void thrustVectorControl(State& currentState, State& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray)
+void thrustVectorControl(VehicleState& currentState, VehicleState& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray)
 {
 
 }
