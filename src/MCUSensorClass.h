@@ -1,8 +1,6 @@
 #ifndef MCUSENSORCLASS_H
 #define MCUSENSORCLASS_H
 
-// THIS FILE WAS FORMERLY SensorHeader.h
-
 #include <Arduino.h>
 #include <string>
 #include <bitset>
@@ -11,7 +9,7 @@
 
 //using std::string;
 
-
+///// MOVE THIS STUFF FOR NEW POLYMORPHISM SENSOR STRUCTURE /////
 // enum for holding sensor types
 enum SensorType
 {
@@ -30,6 +28,7 @@ enum ADCType
   ADS1263,  //not in use yet
   I2Cext, //currently used for RTD
 };
+/////
 
 enum SensorState
 {
@@ -37,7 +36,7 @@ enum SensorState
   Slow,
   Medium,
   Fast,
-  Calibration,
+  Calibration, //doesn't currently work - new partially implemented feature
 };
 
 class MCU_SENSOR

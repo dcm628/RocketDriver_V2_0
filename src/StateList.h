@@ -25,12 +25,18 @@ enum class VehicleState
 
 };
 
+// very preliminary, update as needed while developing Mission State machine
 enum class MissionState
 {
     // These are the God States, they can be reached from any position
-    passive,      // 0
-    prelaunch,      // 1   the outputs disabled for testing state?
-    ascentRail,    // 2
-    ascentFree,       // 3
+    passive,                // 0
+    prelaunch,              // 1   the outputs disabled for testing state?
+    ascentRail,             // 2
+    ascentFreeThrust,       // 3
+    ascentFreeCoast,        // 4
+    descentFree,            // 5
+    descentPilot,           // 6
+    descentDrogue,          // 7
+    descentMain,            // 8
 };
 #endif

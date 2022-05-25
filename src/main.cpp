@@ -100,8 +100,10 @@ uint32_t loopCount {0};// for debugging
 
 // Set the global command, and global state
 Command currentCommand{command_NOCOMMAND}; 
-State currentState{State::passive};
-State priorState;
+VehicleState currentVehicleState{VehicleState::passive};
+VehicleState priorVehicleState;
+MissionState currentMissionState(MissionState::passive);
+MissionState priorMissionState;
 
 //AutoSequence stuff for main
 int64_t currentCountdownForMain;
@@ -168,10 +170,10 @@ void setup() {
   startup = true;   // Necessary to set startup to true for the code loop so it does one startup loop for the state machine before entering regular loop behavior
 
   // -----Read Last State off eeprom and update -----
-  currentState = static_cast<State>(EEPROM.read(stateAddress));
+  currentVehicleState = static_cast<VehicleState>(EEPROM.read(stateAddress));
   nodeIDfromEEPROM = EEPROM.read(nodeIDAddress);
   nodeIDdeterminefromEEPROM = EEPROM.read(nodeIDDetermineAddress);
-  startupStateCheck(currentState, currentCommand);
+  startupStateCheck(currentVehicleState, currentCommand);
 
   // ----- Run the Node ID Detection Function -----
   nodeID = NodeIDDetect(nodeID, startup, nodeIDdeterminefromEEPROM, nodeIDfromEEPROM);
@@ -264,7 +266,7 @@ Serial.println(timeSubSecondsMicros); */
 
 
   // -----Process Commands Here-----
-  vehicleStateMachine(currentState, priorState, currentCommand, valveArray, pyroArray, autoSequenceArray, sensorArray, abortHaltFlag);
+  vehicleStateMachine(currentVehicleState, priorVehicleState, currentCommand, valveArray, pyroArray, autoSequenceArray, sensorArray, abortHaltFlag);
 
   ////// ABORT FUNCTIONALITY!!!///// This is what overrides main valve and igniter processes! /////
   ////// DO NOT MOVE BEFORE "commandExecute" or after "valveTasks"/"pyroTasks"!!! /////
@@ -285,12 +287,12 @@ Serial.println(timeSubSecondsMicros); */
 
   // -----Update State on EEPROM -----
   cli(); // disables interrupts to protect write command
-  EEPROM.update(stateAddress, static_cast<uint8_t>(currentState));      // Never use .write()
+  EEPROM.update(stateAddress, static_cast<uint8_t>(currentVehicleState));      // Never use .write()
   EEPROM.update(nodeIDAddress, nodeID);                                 // Never use .write()
   sei(); // reenables interrupts after write is completed
 
   // CAN State Report and Sensor data send Functions
-  CAN2PropSystemStateReport(Can0, currentState, currentCommand, valveArray, pyroArray, abortHaltFlag, nodeID);
+  CAN2PropSystemStateReport(Can0, currentVehicleState, currentCommand, valveArray, pyroArray, abortHaltFlag, nodeID);
   CAN2AutosequenceTimerReport(Can0, autoSequenceArray, abortHaltFlag, nodeID);
   CAN2SensorArraySend(Can0, sensorArray, nodeID, CANSensorReportConverted);
 
@@ -300,8 +302,8 @@ Serial.println(timeSubSecondsMicros); */
   if (mainLoopTestingTimer >= 1000000)
   {
   //Main Loop state and command print statements - for testing only
-/*   Serial.print("currentState :");
-  Serial.println(static_cast<uint8_t>(currentState));
+/*   Serial.print("currentVehicleState :");
+  Serial.println(static_cast<uint8_t>(currentVehicleState));
   Serial.print("currentCommand :");
   Serial.println(currentCommand); */
 
