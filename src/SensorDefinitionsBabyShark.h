@@ -7,8 +7,8 @@
 
 // define number of sensors here
 // BabyShark Rocket Config
-#define NUM_SENSORS 17
-#define NUMINTERNAL_SENSORS 13
+#define NUM_SENSORS 17              // Total system number of external propulsion sensors
+#define NUMINTERNAL_SENSORS 13      // On EACH ALARA
 
 
 // initialize all sensor objects here

@@ -23,10 +23,10 @@ void valveTasks(const std::array<T, size>& valveArray, uint8_t& nodeIDReadIn)
             valve->stateOperations();
             //Serial.print("LoopRan");
         }
-        if (valve->getBangerBool())
+/*         if (valve->getBangerBool())
         {
             valve->bangBang();
-        }
+        } */
     }
 }
 
@@ -330,7 +330,7 @@ void CAN2AutosequenceTimerReport(FlexCAN& CANbus, const std::array<T, size>& aut
 
 // General Level State Report - covers overall state of whole node
 template <typename T,std::size_t sizeT, typename U,std::size_t sizeU>
-void CAN2PropSystemStateReport(FlexCAN& CANbus, State& currentState, Command& currentCommand, const std::array<T, sizeT>& valveArrayIn, const std::array<U, sizeU>& pyroArrayIn, bool& haltFlag, uint8_t& nodeID)
+void CAN2PropSystemStateReport(FlexCAN& CANbus, VehicleState& currentState, Command& currentCommand, const std::array<T, sizeT>& valveArrayIn, const std::array<U, sizeU>& pyroArrayIn, bool& haltFlag, uint8_t& nodeID)
 {
 elapsedMicros PropSysReportTimer;
 

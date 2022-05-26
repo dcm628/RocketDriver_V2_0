@@ -1,5 +1,9 @@
 #ifndef PINLIST_H
 #define PINLIST_H
+#pragma once
+
+#define ALARAV2     // Used to be able to have ALARA version dependant pin mappings in future
+#ifdef ALARAV2
 
 // ALARA pin mapping definitions
 // Analog Inputs
@@ -33,8 +37,8 @@
 #define ALARA_HIGHPOWER_DIGITALOUT6 52
 #define ALARA_HIGHPOWER_DIGITALOUT7 51
 #define ALARA_HIGHPOWER_DIGITALOUT8 54
-#define ALARA_HIGHPOWER_DIGITALOUT9
-#define ALARA_HIGHPOWER_DIGITALOUT10
+#define ALARA_HIGHPOWER_DIGITALOUT9 998
+#define ALARA_HIGHPOWER_DIGITALOUT10 999
 #define ALARA_HIGHPOWER_PWMOUT1 3
 #define ALARA_HIGHPOWER_PWMOUT2 4
 #define ALARA_HIGHPOWER_PWMOUT3 29
@@ -87,6 +91,11 @@
 #define ALARA_PROG_LED2 
 #define ALARA_PROG_LED3 
 
+// NRF and LORA external jumper connectors
+#define ALARA_NRF_CS
+#define ALARA_LORA_CS
+
+#endif
 
 // NON ALARA prior gen stuff below
 namespace pin
