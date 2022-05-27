@@ -3,6 +3,7 @@
 
 #include "SensorClass.h"
 #include <array>
+#include "pinList.h"
 
 // define number of sensors here
 // Renegade SF

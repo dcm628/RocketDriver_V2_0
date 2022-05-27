@@ -13,6 +13,7 @@
 #include "PyroDefinitionsRenegadeSF.h"
 #include "AutoSequenceDefinitionsRenegadeSF.h"
 #include "SensorDefinitionsRenegadeSF.h"
+#include "TankPressControllerDefinitionsRenegadeSF.h"
 #include "ControlFunctionsRenegadeSF.h"
 #endif
 
@@ -22,6 +23,7 @@
 #include "PyroDefinitionsRenegadeBabyShark.h"
 #include "AutoSequenceDefinitionsRenegadeBabyShark.h"
 #include "SensorDefinitionsRenegadeBabyShark.h"
+#include "TankPressControllerDefinitionsBabyShark.h"
 #include "ControlFunctionsRenegadeBabyShark.h"
 #endif
 // -------------------------------------------------------------
@@ -266,17 +268,18 @@ Serial.println(timeSubSecondsMicros); */
 
 
   // -----Process Commands Here-----
-  vehicleStateMachine(currentVehicleState, priorVehicleState, currentCommand, valveArray, pyroArray, autoSequenceArray, sensorArray, abortHaltFlag);
+  vehicleStateMachine(currentVehicleState, priorVehicleState, currentCommand, valveArray, pyroArray, autoSequenceArray, sensorArray, tankPressControllerArray, abortHaltFlag);
 
   ////// ABORT FUNCTIONALITY!!!///// This is what overrides main valve and igniter processes! /////
   ////// DO NOT MOVE BEFORE "commandExecute" or after "valveTasks"/"pyroTasks"!!! /////
   //haltFlagCheck(abortHaltFlag, valveArray, pyroArray);
 
-  // -----Advance needed propulsion system tasks (valve, valve enables, pyro, autosequences) ----- //
+  // -----Advance needed controller system tasks (tank press controllers, ignition autosequence, . ..) ----- //
   autoSequenceTasks(autoSequenceArray,nodeID);
   autoSequenceValveUpdate(valveArray, currentCountdownForMain);
   autoSequencePyroUpdate(pyroArray, currentCountdownForMain);  
-  
+  tankPressControllerTasks(tankPressControllerArray, nodeID);
+  // -----Advance needed propulsion system tasks (valve, pyro, sensors, . ..) ----- //
   valveTasks(valveArray, nodeID);
   pyroTasks(pyroArray, nodeID);
   sensorTasks(sensorArray, adc, rocketDriverSeconds, rocketDriverMicros, nodeID);

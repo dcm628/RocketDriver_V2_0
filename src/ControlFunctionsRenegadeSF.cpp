@@ -47,6 +47,10 @@
 #define Engine1TVC_Y_ArrayPointer 0
 #define Engine1TVC_Z_ArrayPointer 1
 
+// tank press controller defines for pointers
+#define HighPressTankController_ArrayPointer 0
+#define LoxTankController_ArrayPointer 1
+#define FuelTankController_ArrayPointer 2
 
 // -------------------------------------------------------------
 
@@ -90,7 +94,7 @@ void startupStateCheck(const VehicleState& currentState, Command& currentCommand
 }
 
 
-void vehicleStateMachine(VehicleState& currentState, VehicleState& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray, const std::array<Pyro*, NUM_PYROS>& pyroArray, const std::array<AutoSequence*, NUM_AUTOSEQUENCES>& autoSequenceArray, const std::array<MCU_SENSOR*, NUM_SENSORS>& sensorArray, bool & haltFlag)
+void vehicleStateMachine(VehicleState& currentState, VehicleState& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray, const std::array<Pyro*, NUM_PYROS>& pyroArray, const std::array<AutoSequence*, NUM_AUTOSEQUENCES>& autoSequenceArray, const std::array<MCU_SENSOR*, NUM_SENSORS>& sensorArray, const std::array<TankPressController*, NUM_TANKPRESSCONTROLLERS>& tankPressControllerArray, bool & haltFlag)
 {
     switch (currentCommand)
     {
@@ -130,6 +134,10 @@ void vehicleStateMachine(VehicleState& currentState, VehicleState& priorState, C
             sensorArray.at(17)->setState(SensorState::Medium);        // Renegade SF Stand - HiPressLoxPT
             sensorArray.at(18)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode2
             sensorArray.at(19)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode3
+            tankPressControllerArray.at(HighPressTankController_ArrayPointer)->setState(TankPressControllerState::Passive);
+            tankPressControllerArray.at(LoxTankController_ArrayPointer)->setState(TankPressControllerState::Passive);
+            tankPressControllerArray.at(FuelTankController_ArrayPointer)->setState(TankPressControllerState::Passive);
+            
             currentState = VehicleState::passive;
             haltFlag = false;
             break;
@@ -791,7 +799,7 @@ void missionStateMachine(VehicleState& currentState, VehicleState& priorState, C
 
 }
 
-// Controller for tank pressurization, dome regged or bang on/off
+/* // Controller for tank pressurization, dome regged or bang on/off
 void tankPress(VehicleState& currentState, VehicleState& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray)
 {
     switch (currentCommand)
@@ -816,4 +824,4 @@ void rollRCS(VehicleState& currentState, VehicleState& priorState, Command& curr
 void thrustVectorControl(VehicleState& currentState, VehicleState& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray)
 {
 
-}
+} */

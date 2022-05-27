@@ -5,7 +5,7 @@
 #include <string>
 #include <bitset>
 #include <ADC.h>
-
+#include "SensorStates.h"
 
 //using std::string;
 
@@ -20,7 +20,7 @@ enum SensorType
   rtd,
 };
 
-// enum for holding ADC input types
+// enum for holding ADC input types, may not use this way
 enum ADCType
 {
   TeensyMCUADC,
@@ -28,16 +28,7 @@ enum ADCType
   ADS1263,  //not in use yet
   I2Cext, //currently used for RTD
 };
-/////
 
-enum SensorState
-{
-  Off,
-  Slow,
-  Medium,
-  Fast,
-  Calibration, //doesn't currently work - new partially implemented feature
-};
 
 class MCU_SENSOR
 {

@@ -23,10 +23,7 @@ void valveTasks(const std::array<T, size>& valveArray, uint8_t& nodeIDReadIn)
             valve->stateOperations();
             //Serial.print("LoopRan");
         }
-/*         if (valve->getBangerBool())
-        {
-            valve->bangBang();
-        } */
+
     }
 }
 
@@ -40,6 +37,22 @@ void pyroTasks(const std::array<T, size>& pyroArray, uint8_t& nodeIDReadIn)
     if (pyro->getPyroNodeID() == nodeIDReadIn)
         {
             pyro->stateOperations();
+            //Serial.print("LoopRan");
+        }
+    }
+}
+
+template <typename T, std::size_t size>
+void tankPressControllerTasks(const std::array<T, size>& tankPressControllerArray, uint8_t& nodeIDReadIn)
+{
+    // iterate through valve array and run the stateOperations method
+    for(auto tankPressController : tankPressControllerArray)
+    {
+    
+        if (tankPressController->getValveNodeID() == nodeIDReadIn)
+        {
+            tankPressController->stateOperations();
+            tankPressController->deviceSetOperations();
             //Serial.print("LoopRan");
         }
     }
