@@ -829,14 +829,14 @@ void missionStateMachine(VehicleState& currentState, VehicleState& priorState, C
 void propulsionControllerDeviceUpdate(VehicleState& currentState, VehicleState& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray, const std::array<Pyro*, NUM_PYROS>& pyroArray, const std::array<AutoSequence*, NUM_AUTOSEQUENCES>& autoSequenceArray, const std::array<MCU_SENSOR*, NUM_SENSORS>& sensorArray, const std::array<TankPressController*, NUM_TANKPRESSCONTROLLERS>& tankPressControllerArray, bool & haltFlag)
 {
     //Serial.println("Is this even on???");
-            valveArray.at(HiPress_ArrayPointer)->setState(tankPressControllerArray.at(HighPressTankController_ArrayPointer)->getDomePressState());
-            valveArray.at(HiPressVent_ArrayPointer)->setState(tankPressControllerArray.at(HighPressTankController_ArrayPointer)->getDomeVentState());
-            valveArray.at(LoxDomeReg_ArrayPointer)->setState(tankPressControllerArray.at(LoxTankController_ArrayPointer)->getDomePressState());
-            valveArray.at(LoxDomeRegVent_ArrayPointer)->setState(tankPressControllerArray.at(LoxTankController_ArrayPointer)->getDomeVentState());
+            valveArray.at(HiPress_ArrayPointer)->setState(tankPressControllerArray.at(HighPressTankController_ArrayPointer)->getPrimaryPressValveState());
+            valveArray.at(HiPressVent_ArrayPointer)->setState(tankPressControllerArray.at(HighPressTankController_ArrayPointer)->getPressLineVentState());
+            valveArray.at(LoxDomeReg_ArrayPointer)->setState(tankPressControllerArray.at(LoxTankController_ArrayPointer)->getPrimaryPressValveState());
+            valveArray.at(LoxDomeRegVent_ArrayPointer)->setState(tankPressControllerArray.at(LoxTankController_ArrayPointer)->getPressLineVentState());
             valveArray.at(LoxVent_ArrayPointer)->setState(tankPressControllerArray.at(LoxTankController_ArrayPointer)->getTankVentState());
             //Serial.print(static_cast<uint8_t>(valveArray.at(LoxVent_ArrayPointer)->getState()));
-            valveArray.at(FuelDomeReg_ArrayPointer)->setState(tankPressControllerArray.at(FuelTankController_ArrayPointer)->getDomePressState());
-            valveArray.at(FuelDomeRegVent_ArrayPointer)->setState(tankPressControllerArray.at(FuelTankController_ArrayPointer)->getDomeVentState());
+            valveArray.at(FuelDomeReg_ArrayPointer)->setState(tankPressControllerArray.at(FuelTankController_ArrayPointer)->getPrimaryPressValveState());
+            valveArray.at(FuelDomeRegVent_ArrayPointer)->setState(tankPressControllerArray.at(FuelTankController_ArrayPointer)->getPressLineVentState());
             valveArray.at(FuelVent_ArrayPointer)->setState(tankPressControllerArray.at(FuelTankController_ArrayPointer)->getTankVentState());
 
 }

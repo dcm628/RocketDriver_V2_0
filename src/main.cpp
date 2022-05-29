@@ -317,9 +317,9 @@ Serial.println(timeSubSecondsMicros); */
             Serial.print(static_cast<uint8_t>(tankPressController->getState()));
             Serial.println(": ");
             Serial.println(": ");
-            Serial.print(static_cast<uint8_t>(tankPressController->getDomePressState()));
+            Serial.print(static_cast<uint8_t>(tankPressController->getPrimaryPressValveState()));
             Serial.println(": ");
-            Serial.print(static_cast<uint8_t>(tankPressController->getDomeVentState()));
+            Serial.print(static_cast<uint8_t>(tankPressController->getPressLineVentState()));
             Serial.println(": ");
             Serial.print(static_cast<uint8_t>(tankPressController->getTankVentState()));
             Serial.println(": ");
