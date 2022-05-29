@@ -2,8 +2,8 @@
 #include <Arduino.h>
 
 
-Valve::Valve(uint32_t setValveID, uint8_t setValveNodeID, ValveType setValveType, uint8_t setPinPWM, uint8_t setPinDigital, uint32_t setFullDutyTime, bool setFireCommandBool, int32_t setFireSequenceTime, uint8_t setHoldDuty,  bool setNodeIDCheck)
-                : valveID{setValveID}, valveNodeID{setValveNodeID}, valveType{setValveType}, pinPWM{setPinPWM}, pinDigital{setPinDigital}, fullDutyTime{setFullDutyTime}, fireCommandBool{setFireCommandBool}, fireSequenceTime{setFireSequenceTime}, holdDuty{setHoldDuty}, nodeIDCheck{setNodeIDCheck}
+Valve::Valve(uint32_t setValveID, uint8_t setValveNodeID, ValveType setValveType, uint8_t setPinPWM, uint8_t setPinDigital, uint32_t setFullDutyTime, bool setFireCommandBool, bool setAbortHaltDeviceBool = false, ValveState setAbortedState = ValveState::CloseCommanded, int32_t setFireSequenceTime, uint8_t setHoldDuty,  bool setNodeIDCheck)
+                : valveID{setValveID}, valveNodeID{setValveNodeID}, valveType{setValveType}, pinPWM{setPinPWM}, pinDigital{setPinDigital}, fullDutyTime{setFullDutyTime}, fireCommandBool{setFireCommandBool}, abortHaltDeviceBool{setAbortHaltDeviceBool}, abortedState{setAbortedState}, fireSequenceTime{setFireSequenceTime}, holdDuty{setHoldDuty}, nodeIDCheck{setNodeIDCheck}
 {
     switch (valveType)
     {
@@ -162,32 +162,8 @@ void Valve::stateOperations()
                 break;
         }
         break;
-    case ValveState::ToBangBang:
-        switch (valveType)
-        {
-            bangerBool = true;
-        }
-        break;
-    case ValveState::ThrottleCommanded:
-        switch (valveType)
-        {
-            
-        }
-        break;
-    case ValveState::ThrottleProcess:
-        switch (valveType)
-        {
-            
-        }
-        break;
-
     // All other states require no action
     default:
         break;
     }
-}
-
-void Valve::bangBang()
-{
-    // Put all the bang bang control code here
 }

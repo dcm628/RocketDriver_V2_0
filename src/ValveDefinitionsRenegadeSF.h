@@ -12,8 +12,8 @@
 // On Renegade SF Engine Node
 Valve HiPress{16, 2, NormalClosed, 2, 24, 25000, false}; 
 Valve HiPressVent{17, 2, NormalClosed, 5, 24, 25000, false};
-Valve LoxMV{24, 2, NormalClosed, 7, 26, 25000, false, true, ValveState::CloseCommanded, false, -1, 50};
-Valve FuelMV{25, 2, NormalClosed, 6, 26, 25000, false, true, ValveState::CloseCommanded, false, -1, 50};
+Valve LoxMV{24, 2, NormalClosed, 7, 26, 25000, false, true, ValveState::CloseCommanded, -1, 50};
+Valve FuelMV{25, 2, NormalClosed, 6, 26, 25000, false, true, ValveState::CloseCommanded, -1, 50};
 // On Renegade SF Prop Node
 Valve LoxVent{18, 3, NormalOpen, 2, 27, 500000, false, 166};
 Valve LoxDomeReg{19, 3, NormalClosed, 5, 25, 25000, false};

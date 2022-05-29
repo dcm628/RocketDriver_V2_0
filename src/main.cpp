@@ -54,7 +54,7 @@ using std::string;
 #include <TimeLib.h>
 #include <DS1307RTC.h>
 
-#define NODEIDPRESET 2;     //NOT in use normally, for testing with the address IO register inactive
+#define NODEIDPRESET 3;     //NOT in use normally, for testing with the address IO register inactive
 
 // Timer for setting main loop debugging print rate
 elapsedMillis mainLoopTestingTimer;
@@ -178,8 +178,8 @@ void setup() {
   startupStateCheck(currentVehicleState, currentCommand);
 
   // ----- Run the Node ID Detection Function -----
-  nodeID = NodeIDDetect(nodeID, startup, nodeIDdeterminefromEEPROM, nodeIDfromEEPROM);
-  //nodeID = NODEIDPRESET;       //For manually assigning NodeID isntead of the address read, make sure to comment out for operational use
+  //nodeID = NodeIDDetect(nodeID, startup, nodeIDdeterminefromEEPROM, nodeIDfromEEPROM);
+  nodeID = NODEIDPRESET;       //For manually assigning NodeID isntead of the address read, make sure to comment out for operational use
   // Write 0 to byte for nodeIDDetermineAddress after reading it after a reset
   cli(); // disables interrupts to protect write command
   EEPROM.update(nodeIDDetermineAddress, 0);                                 // Never use .write()+
@@ -269,16 +269,17 @@ Serial.println(timeSubSecondsMicros); */
 
   // -----Process Commands Here-----
   vehicleStateMachine(currentVehicleState, priorVehicleState, currentCommand, valveArray, pyroArray, autoSequenceArray, sensorArray, tankPressControllerArray, abortHaltFlag);
-
+  tankPressControllerTasks(tankPressControllerArray, nodeID);
+  propulsionControllerDeviceUpdate(currentVehicleState, priorVehicleState, currentCommand, valveArray, pyroArray, autoSequenceArray, sensorArray, tankPressControllerArray, abortHaltFlag);
+  
   ////// ABORT FUNCTIONALITY!!!///// This is what overrides main valve and igniter processes! /////
   ////// DO NOT MOVE BEFORE "commandExecute" or after "valveTasks"/"pyroTasks"!!! /////
   //haltFlagCheck(abortHaltFlag, valveArray, pyroArray);
 
   // -----Advance needed controller system tasks (tank press controllers, ignition autosequence, . ..) ----- //
-  autoSequenceTasks(autoSequenceArray,nodeID);
+/*   autoSequenceTasks(autoSequenceArray,nodeID);
   autoSequenceValveUpdate(valveArray, currentCountdownForMain);
-  autoSequencePyroUpdate(pyroArray, currentCountdownForMain);  
-  tankPressControllerTasks(tankPressControllerArray, nodeID);
+  autoSequencePyroUpdate(pyroArray, currentCountdownForMain);   */
   // -----Advance needed propulsion system tasks (valve, pyro, sensors, . ..) ----- //
   valveTasks(valveArray, nodeID);
   pyroTasks(pyroArray, nodeID);
@@ -302,13 +303,44 @@ Serial.println(timeSubSecondsMicros); */
   // Reset function to reboot Teensy with internal reset register
   TeensyInternalReset(localNodeResetFlag, nodeIDDetermineAddress, nodeID);
 
-  if (mainLoopTestingTimer >= 1000000)
+  if (mainLoopTestingTimer >= 500)
   {
   //Main Loop state and command print statements - for testing only
-/*   Serial.print("currentVehicleState :");
+  Serial.print("currentVehicleState :");
   Serial.println(static_cast<uint8_t>(currentVehicleState));
   Serial.print("currentCommand :");
-  Serial.println(currentCommand); */
+  Serial.println(currentCommand);
+
+    for(auto tankPressController : tankPressControllerArray)
+    {
+            Serial.print( ": TankControllerState: ");
+            Serial.print(static_cast<uint8_t>(tankPressController->getState()));
+            Serial.println(": ");
+            Serial.println(": ");
+            Serial.print(static_cast<uint8_t>(tankPressController->getDomePressState()));
+            Serial.println(": ");
+            Serial.print(static_cast<uint8_t>(tankPressController->getDomeVentState()));
+            Serial.println(": ");
+            Serial.print(static_cast<uint8_t>(tankPressController->getTankVentState()));
+            Serial.println(": ");
+
+    }
+    
+    for(auto valve : valveArray)
+    {
+    
+        if (valve->getValveNodeID() == nodeID)
+        {
+            Serial.print("ValveID: ");
+            Serial.print(static_cast<uint8_t>(valve->getValveID()));
+            Serial.print( ": ValveState: ");
+            Serial.print(static_cast<uint8_t>(valve->getState()));
+            Serial.println(": ");
+
+        }
+
+    }
+
 
   mainLoopTestingTimer = 0; //resets timer to zero each time the loop prints
   //Serial.print("EEPROM Node ID Read :");
@@ -317,5 +349,5 @@ Serial.println(timeSubSecondsMicros); */
 
 // Resets the startup bool, DO NOT REMOVE
 startup = false;
-
+  //Serial.println("main loop ran");
 }

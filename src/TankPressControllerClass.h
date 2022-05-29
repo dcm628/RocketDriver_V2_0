@@ -41,9 +41,10 @@ class TankPressController
         uint8_t getControllerNodeID(){return controllerNodeID;}
         bool getNodeIDCheck(){return nodeIDCheck;}
         uint32_t getTargetValue(){return targetValue;}
+        TankPressControllerState getState(){return state;}
         ValveState getDomePressState(){return domePressState;}
-        ValveState getDomeVentState(){return domePressState;}
-        ValveState getTankVentState(){return domePressState;}
+        ValveState getDomeVentState(){return domeVentState;}
+        ValveState getTankVentState(){return tankVentState;}
     
     // set functions, allows the setting of a variable
     // set the Node ID Check bool function
@@ -66,7 +67,7 @@ class TankPressController
     // and it needs to be run every loop so that once enough time has pass the 
         void stateOperations();
 
-        void deviceSetOperations();
+        //void deviceSetOperations();
 
 };
 

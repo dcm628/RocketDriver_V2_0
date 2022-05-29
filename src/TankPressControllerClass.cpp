@@ -26,6 +26,9 @@ void TankPressController::stateOperations()
     {
     case TankPressControllerState::Passive:
         //don't do shit
+        domePressState = ValveState::CloseCommanded;
+        domeVentState = ValveState::CloseCommanded;
+        tankVentState = ValveState::CloseCommanded;
         sensorState = SensorState::Slow;
         break;
     case TankPressControllerState::DomePressActive:
@@ -66,8 +69,8 @@ void TankPressController::stateOperations()
     }
 }
 
-// This function is how we pass the controller valve and other device states out to the device object states
+/* // This function is how we pass the controller valve and other device states out to the device object states
 void TankPressController::deviceSetOperations()
 {
 
-}
+} */

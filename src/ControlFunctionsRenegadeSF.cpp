@@ -102,16 +102,16 @@ void vehicleStateMachine(VehicleState& currentState, VehicleState& priorState, C
             currentState = VehicleState::debug;
             break;
         case command_passive:
-            valveArray.at(HiPress_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
-            valveArray.at(HiPressVent_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
+/*             //valveArray.at(HiPress_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
+            //valveArray.at(HiPressVent_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
             valveArray.at(LoxMV_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
             valveArray.at(FuelMV_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
-            valveArray.at(LoxVent_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
-            valveArray.at(LoxDomeReg_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
-            valveArray.at(LoxDomeRegVent_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
-            valveArray.at(FuelVent_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
-            valveArray.at(FuelDomeReg_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
-            valveArray.at(FuelDomeRegVent_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
+            //valveArray.at(LoxVent_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
+            //valveArray.at(LoxDomeReg_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
+            //valveArray.at(LoxDomeRegVent_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
+            //valveArray.at(FuelVent_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
+            //valveArray.at(FuelDomeReg_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
+            //valveArray.at(FuelDomeRegVent_ArrayPointer)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
             pyroArray.at(0)->setState(PyroState::OffCommanded);             // Renegade SF Igniter1
             pyroArray.at(1)->setState(PyroState::OffCommanded);             // Renegade SF Igniter2
             sensorArray.at(0)->setState(SensorState::Medium);         // Renegade SF Stand - ThrustMountLoadCell1pos
@@ -134,6 +134,7 @@ void vehicleStateMachine(VehicleState& currentState, VehicleState& priorState, C
             sensorArray.at(17)->setState(SensorState::Medium);        // Renegade SF Stand - HiPressLoxPT
             sensorArray.at(18)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode2
             sensorArray.at(19)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode3
+ */            
             tankPressControllerArray.at(HighPressTankController_ArrayPointer)->setState(TankPressControllerState::Passive);
             tankPressControllerArray.at(LoxTankController_ArrayPointer)->setState(TankPressControllerState::Passive);
             tankPressControllerArray.at(FuelTankController_ArrayPointer)->setState(TankPressControllerState::Passive);
@@ -163,7 +164,7 @@ void vehicleStateMachine(VehicleState& currentState, VehicleState& priorState, C
             autoSequenceArray.at(0)->setState(AutoSequenceState::Hold);     // Renegade SF Stand
             break;
         case command_vent:
-            valveArray.at(0)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
+/*             valveArray.at(0)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
             valveArray.at(1)->setState(ValveState::OpenCommanded);          // Renegade SF Stand
             valveArray.at(2)->setState(ValveState::OpenCommanded);          // Renegade SF Stand
             valveArray.at(3)->setState(ValveState::OpenCommanded);          // Renegade SF Stand
@@ -196,13 +197,17 @@ void vehicleStateMachine(VehicleState& currentState, VehicleState& priorState, C
             sensorArray.at(17)->setState(SensorState::Medium);        // Renegade SF Stand - HiPressLoxPT
             sensorArray.at(18)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode2
             sensorArray.at(19)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode3
+ */            
+            tankPressControllerArray.at(HighPressTankController_ArrayPointer)->setState(TankPressControllerState::Passive);
+            tankPressControllerArray.at(LoxTankController_ArrayPointer)->setState(TankPressControllerState::Vent);
+            tankPressControllerArray.at(FuelTankController_ArrayPointer)->setState(TankPressControllerState::Vent);
             currentState = VehicleState::vent;
             break;
 // Fire Sequence commands will only be executed from the proper state
         case command_HiPressArm:
             if(currentState == VehicleState::passive)
             {
-            valveArray.at(0)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
+/*             valveArray.at(0)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
             valveArray.at(1)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
             valveArray.at(2)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
             valveArray.at(3)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
@@ -235,13 +240,17 @@ void vehicleStateMachine(VehicleState& currentState, VehicleState& priorState, C
             sensorArray.at(17)->setState(SensorState::Fast);        // Renegade SF Stand - HiPressLoxPT
             sensorArray.at(18)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode2
             sensorArray.at(19)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode3
+ */            
+            tankPressControllerArray.at(HighPressTankController_ArrayPointer)->setState(TankPressControllerState::Armed);
+            tankPressControllerArray.at(LoxTankController_ArrayPointer)->setState(TankPressControllerState::Passive);
+            tankPressControllerArray.at(FuelTankController_ArrayPointer)->setState(TankPressControllerState::Passive);
             currentState = VehicleState::HiPressArm;
             }
             break;
         case command_HiPressPressurized:
             if(currentState == VehicleState::HiPressArm || currentState == VehicleState::TankPressArm) //added second conditional to allow entry backwards in a "disarm" state change
             {
-            valveArray.at(0)->setState(ValveState::OpenCommanded);          // Renegade SF Stand
+/*             valveArray.at(0)->setState(ValveState::OpenCommanded);          // Renegade SF Stand
             valveArray.at(1)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
             valveArray.at(2)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
             valveArray.at(3)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
@@ -274,13 +283,17 @@ void vehicleStateMachine(VehicleState& currentState, VehicleState& priorState, C
             sensorArray.at(17)->setState(SensorState::Fast);        // Renegade SF Stand - HiPressLoxPT
             sensorArray.at(18)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode2
             sensorArray.at(19)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode3
+ */            
+            tankPressControllerArray.at(HighPressTankController_ArrayPointer)->setState(TankPressControllerState::DomePressActive);
+            tankPressControllerArray.at(LoxTankController_ArrayPointer)->setState(TankPressControllerState::Passive);
+            tankPressControllerArray.at(FuelTankController_ArrayPointer)->setState(TankPressControllerState::Passive);
             currentState = VehicleState::HiPressPressurized;
             }
             break;
         case command_TankPressArm:
             if(currentState == VehicleState::HiPressPressurized)
             {
-            valveArray.at(0)->setState(ValveState::OpenCommanded);          // Renegade SF Stand
+/*             valveArray.at(0)->setState(ValveState::OpenCommanded);          // Renegade SF Stand
             valveArray.at(1)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
             valveArray.at(2)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
             valveArray.at(3)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
@@ -313,13 +326,17 @@ void vehicleStateMachine(VehicleState& currentState, VehicleState& priorState, C
             sensorArray.at(17)->setState(SensorState::Fast);        // Renegade SF Stand - HiPressLoxPT
             sensorArray.at(18)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode2
             sensorArray.at(19)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode3
+ */            
+            tankPressControllerArray.at(HighPressTankController_ArrayPointer)->setState(TankPressControllerState::DomePressActive);
+            tankPressControllerArray.at(LoxTankController_ArrayPointer)->setState(TankPressControllerState::Armed);
+            tankPressControllerArray.at(FuelTankController_ArrayPointer)->setState(TankPressControllerState::Armed);
             currentState = VehicleState::TankPressArm;
             }
             break;
         case commend_TankPressPressurized:
             if(currentState == VehicleState::TankPressArm)
             {
-            valveArray.at(0)->setState(ValveState::OpenCommanded);          // Renegade SF Stand
+/*             valveArray.at(0)->setState(ValveState::OpenCommanded);          // Renegade SF Stand
             valveArray.at(1)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
             valveArray.at(2)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
             valveArray.at(3)->setState(ValveState::OpenCommanded);          // Renegade SF Stand
@@ -352,13 +369,17 @@ void vehicleStateMachine(VehicleState& currentState, VehicleState& priorState, C
             sensorArray.at(17)->setState(SensorState::Fast);        // Renegade SF Stand - HiPressLoxPT
             sensorArray.at(18)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode2
             sensorArray.at(19)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode3
+ */            
+            tankPressControllerArray.at(HighPressTankController_ArrayPointer)->setState(TankPressControllerState::DomePressActive);
+            tankPressControllerArray.at(LoxTankController_ArrayPointer)->setState(TankPressControllerState::DomePressActive);
+            tankPressControllerArray.at(FuelTankController_ArrayPointer)->setState(TankPressControllerState::DomePressActive);
             currentState = VehicleState::TankPressPressurized;
             }
             break;
         case command_fireArm:
             if(currentState == VehicleState::TankPressPressurized)
             {
-            valveArray.at(0)->setState(ValveState::CloseCommanded);          // Renegade SF Stand
+/*             valveArray.at(0)->setState(ValveState::CloseCommanded);          // Renegade SF Stand
             valveArray.at(1)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
             valveArray.at(2)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
             valveArray.at(3)->setState(ValveState::OpenCommanded);          // Renegade SF Stand
@@ -391,13 +412,17 @@ void vehicleStateMachine(VehicleState& currentState, VehicleState& priorState, C
             sensorArray.at(17)->setState(SensorState::Fast);        // Renegade SF Stand - HiPressLoxPT
             sensorArray.at(18)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode2
             sensorArray.at(19)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode3
+ */            
+            tankPressControllerArray.at(HighPressTankController_ArrayPointer)->setState(TankPressControllerState::DomePressActive);
+            tankPressControllerArray.at(LoxTankController_ArrayPointer)->setState(TankPressControllerState::DomePressActive);
+            tankPressControllerArray.at(FuelTankController_ArrayPointer)->setState(TankPressControllerState::DomePressActive);
             currentState = VehicleState::fireArmed;
             }
             break;
         case command_fire:
             if(currentState == VehicleState::fireArmed)
             {
-            valveArray.at(0)->setState(ValveState::CloseCommanded);          // Renegade SF Stand
+/*             valveArray.at(0)->setState(ValveState::CloseCommanded);          // Renegade SF Stand
             valveArray.at(1)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
             valveArray.at(2)->setState(ValveState::CloseCommanded);         // Renegade SF Stand
             valveArray.at(3)->setState(ValveState::OpenCommanded);          // Renegade SF Stand
@@ -430,11 +455,13 @@ void vehicleStateMachine(VehicleState& currentState, VehicleState& priorState, C
             sensorArray.at(17)->setState(SensorState::Fast);        // Renegade SF Stand - HiPressLoxPT
             sensorArray.at(18)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode2
             sensorArray.at(19)->setState(SensorState::Medium);        // Renegade SF Stand - MCUtempNode3
+ */            
+            tankPressControllerArray.at(HighPressTankController_ArrayPointer)->setState(TankPressControllerState::DomePressActive);
+            tankPressControllerArray.at(LoxTankController_ArrayPointer)->setState(TankPressControllerState::DomePressActive);
+            tankPressControllerArray.at(FuelTankController_ArrayPointer)->setState(TankPressControllerState::DomePressActive);
             currentState = VehicleState::fire;
             }
             break;
-
-
         case command_closeHiPress:
             if(currentState == VehicleState::test)
             {
@@ -798,6 +825,22 @@ void missionStateMachine(VehicleState& currentState, VehicleState& priorState, C
 {
 
 }
+
+void propulsionControllerDeviceUpdate(VehicleState& currentState, VehicleState& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray, const std::array<Pyro*, NUM_PYROS>& pyroArray, const std::array<AutoSequence*, NUM_AUTOSEQUENCES>& autoSequenceArray, const std::array<MCU_SENSOR*, NUM_SENSORS>& sensorArray, const std::array<TankPressController*, NUM_TANKPRESSCONTROLLERS>& tankPressControllerArray, bool & haltFlag)
+{
+    //Serial.println("Is this even on???");
+            valveArray.at(HiPress_ArrayPointer)->setState(tankPressControllerArray.at(HighPressTankController_ArrayPointer)->getDomePressState());
+            valveArray.at(HiPressVent_ArrayPointer)->setState(tankPressControllerArray.at(HighPressTankController_ArrayPointer)->getDomeVentState());
+            valveArray.at(LoxDomeReg_ArrayPointer)->setState(tankPressControllerArray.at(LoxTankController_ArrayPointer)->getDomePressState());
+            valveArray.at(LoxDomeRegVent_ArrayPointer)->setState(tankPressControllerArray.at(LoxTankController_ArrayPointer)->getDomeVentState());
+            valveArray.at(LoxVent_ArrayPointer)->setState(tankPressControllerArray.at(LoxTankController_ArrayPointer)->getTankVentState());
+            //Serial.print(static_cast<uint8_t>(valveArray.at(LoxVent_ArrayPointer)->getState()));
+            valveArray.at(FuelDomeReg_ArrayPointer)->setState(tankPressControllerArray.at(FuelTankController_ArrayPointer)->getDomePressState());
+            valveArray.at(FuelDomeRegVent_ArrayPointer)->setState(tankPressControllerArray.at(FuelTankController_ArrayPointer)->getDomeVentState());
+            valveArray.at(FuelVent_ArrayPointer)->setState(tankPressControllerArray.at(FuelTankController_ArrayPointer)->getTankVentState());
+
+}
+
 
 /* // Controller for tank pressurization, dome regged or bang on/off
 void tankPress(VehicleState& currentState, VehicleState& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray)

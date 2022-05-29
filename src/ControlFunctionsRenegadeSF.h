@@ -34,4 +34,6 @@ void rollRCS(VehicleState& currentState, VehicleState& priorState, Command& curr
 // Controls any devices from vehicleStateMachine that are on TVC system
 void thrustVectorControl(VehicleState& currentState, VehicleState& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray);
 
+void propulsionControllerDeviceUpdate(VehicleState& currentState, VehicleState& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray, const std::array<Pyro*, NUM_PYROS>& pyroArray, const std::array<AutoSequence*, NUM_AUTOSEQUENCES>& autoSequenceArray, const std::array<MCU_SENSOR*, NUM_SENSORS>& sensorArray, const std::array<TankPressController*, NUM_TANKPRESSCONTROLLERS>& tankPressControllerArray, bool &HaltFlag);
+
 #endif

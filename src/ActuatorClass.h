@@ -1,6 +1,8 @@
 #ifndef ACTUATORCLASS_H
 #define ACTUATORCLASS_H
 
+#include <Arduino.h>
+
 enum ActuatorType
 {
     LinearServo,

@@ -32,7 +32,6 @@ class Valve
         const uint8_t holdDuty{};                   // partial duty cycle to hold valve in actuated state
         bool fireCommandBool;                       // Whether this valve is on the Ignition AutoSequence for FireCommand timer check
         bool nodeIDCheck;                           // Whether this object should operate on this node
-        bool bangerBool;                    // Whether this valve is part of the bang bang control scheme
         bool abortHaltDeviceBool;                    // Whether this valve is set by the abort halt flag override
         ValveState abortedState;
         uint16_t controlSensor1Value;               // For use in control schemes, really a template placement pending needed number and type of samples
@@ -41,7 +40,7 @@ class Valve
     
     // constructor, define the valve ID here, and the pin that controls the valve, setFireDelay is only parameter that can be left blank
         Valve(uint32_t setValveID, uint8_t setValveNodeID, ValveType setValveType, uint8_t setPinPWM, uint8_t setPinDigital, uint32_t setFullDutyTime, bool setFireCommandBool,  
-        bool setAbortHaltDeviceBool = false, ValveState setAbortedState = ValveState::CloseCommanded, bool setBangerBool = false, int32_t setFireSequenceTime = 2147483647, uint8_t setHoldDuty = 64, bool setNodeIDCheck = false);
+        bool setAbortHaltDeviceBool = false, ValveState setAbortedState = ValveState::CloseCommanded, int32_t setFireSequenceTime = 2147483647, uint8_t setHoldDuty = 64, bool setNodeIDCheck = false);
     // a start up method, to set pins from within setup()
         void begin();
 
@@ -62,7 +61,6 @@ class Valve
         uint32_t getTimer(){return timer;}
         bool getFireCommandBool(){return fireCommandBool;}
         bool getNodeIDCheck(){return nodeIDCheck;}
-        bool getBangerBool(){return bangerBool;}
         bool getAbortHaltDeviceBool(){return abortHaltDeviceBool;}
 
     // set functions, allows the setting of a variable
@@ -80,9 +78,6 @@ class Valve
 
     // set the Fire Sequence bool function
         void setFireCommandBool(bool updatedFireCommandBool) {fireCommandBool = updatedFireCommandBool;}
-
-    // set the Banger bool function
-        void setBangerBool(bool updatedBangerBool) {bangerBool = updatedBangerBool;}
 
     // set the Node ID Check bool function
         void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;}
