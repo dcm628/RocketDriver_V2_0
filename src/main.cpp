@@ -16,6 +16,7 @@
 #include "TankPressControllerDefinitionsRenegadeSF.h"
 #include "EngineControllerDefinitionsRenegadeSF.h"
 #include "ControlFunctionsRenegadeSF.h"
+#include "ALARASensorControllerDefinitionsRenegadeSF.h"
 #endif
 
 //----- BabyShark -----
@@ -27,6 +28,7 @@
 #include "TankPressControllerDefinitionsBabyShark.h"
 #include "EngineControllerDefinitionsBabyShark.h"
 #include "ControlFunctionsRenegadeBabyShark.h"
+#include "ALARASensorControllerDefinitionsBabyShark.h"
 #endif
 // -------------------------------------------------------------
 
