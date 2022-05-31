@@ -30,4 +30,27 @@ enum class ControllerState
     ControllerState_SIZE,       // 6
 };
 
+
+enum class EngineControllerState
+{
+    Passive,                    // 0
+    Active,                     // 1
+    Chill,                      // 2
+    Purge,                      // 3
+    Shutdown,                   // 4
+    Armed,                      // 5
+    TestPassthrough,            // 6
+    AutosequenceCommanded,      // 7
+    ControllerState_SIZE,       // 8
+};
+
+enum class ALARAV2SensorControllerState
+{
+    Passive,                    // 0
+    Active,                     // 1
+    GNCOnly,                    // 2
+    InternalOnly,               // 3
+    ControllerState_SIZE,       // 4
+};
+
 #endif

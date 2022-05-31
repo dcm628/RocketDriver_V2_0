@@ -1,0 +1,15 @@
+#ifndef ENGINECONTROLLERDEFINITIONSRENEGADESF_H
+#define ENGINECONTROLLERDEFINITIONSRENEGADESF_H
+
+#include "EngineControllerClass.h"
+#include <array>
+#include "pinList.h"
+
+#define NUM_ENGINECONTROLLERS 1
+
+EngineController Engine1{1, 2};
+
+//
+std::array<EngineController*, NUM_ENGINECONTROLLERS> engineControllerArray{&Engine1};
+
+#endif

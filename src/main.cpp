@@ -14,6 +14,7 @@
 #include "AutoSequenceDefinitionsRenegadeSF.h"
 #include "SensorDefinitionsRenegadeSF.h"
 #include "TankPressControllerDefinitionsRenegadeSF.h"
+#include "EngineControllerDefinitionsRenegadeSF.h"
 #include "ControlFunctionsRenegadeSF.h"
 #endif
 
@@ -24,6 +25,7 @@
 #include "AutoSequenceDefinitionsRenegadeBabyShark.h"
 #include "SensorDefinitionsRenegadeBabyShark.h"
 #include "TankPressControllerDefinitionsBabyShark.h"
+#include "EngineControllerDefinitionsBabyShark.h"
 #include "ControlFunctionsRenegadeBabyShark.h"
 #endif
 // -------------------------------------------------------------
@@ -268,9 +270,10 @@ Serial.println(timeSubSecondsMicros); */
 
 
   // -----Process Commands Here-----
-  vehicleStateMachine(currentVehicleState, priorVehicleState, currentCommand, valveArray, pyroArray, autoSequenceArray, sensorArray, tankPressControllerArray, abortHaltFlag);
+  vehicleStateMachine(currentVehicleState, priorVehicleState, currentCommand, valveArray, pyroArray, autoSequenceArray, sensorArray, tankPressControllerArray, engineControllerArray, abortHaltFlag);
   tankPressControllerTasks(tankPressControllerArray, nodeID);
-  propulsionControllerDeviceUpdate(currentVehicleState, priorVehicleState, currentCommand, valveArray, pyroArray, autoSequenceArray, sensorArray, tankPressControllerArray, abortHaltFlag);
+  engineControllerTasks(engineControllerArray, nodeID);
+  controllerDeviceSync(currentVehicleState, priorVehicleState, currentCommand, valveArray, pyroArray, autoSequenceArray, sensorArray, tankPressControllerArray, engineControllerArray, abortHaltFlag);
   
   ////// ABORT FUNCTIONALITY!!!///// This is what overrides main valve and igniter processes! /////
   ////// DO NOT MOVE BEFORE "commandExecute" or after "valveTasks"/"pyroTasks"!!! /////

@@ -65,6 +65,22 @@ void tankPressControllerTasks(const std::array<T, size>& tankPressControllerArra
 }
 
 template <typename T, std::size_t size>
+void engineControllerTasks(const std::array<T, size>& engineControllerArray, uint8_t& nodeIDReadIn)
+{
+    // iterate through valve array and run the stateOperations method
+    for(auto engineController : engineControllerArray)
+    {
+    
+        if (engineController->getControllerNodeID() == nodeIDReadIn)
+        {
+            engineController->stateOperations();
+            //tankPressController->deviceSetOperations();
+            //Serial.print("LoopRan");
+        }
+    }
+}
+
+template <typename T, std::size_t size>
 void autoSequenceTasks(const std::array<T, size>& autoSequenceArray, uint8_t& nodeIDReadIn)
 {
     // iterate through valve array and run the stateOperations method
