@@ -47,10 +47,10 @@
 #include <list>
 using std::string;
 
+#include "ALARAUtilityFunctions.h"
 #include "ToMillisTimeTracker.h"
 #include "CANRead.h"
 #include "CANWrite.h"
-#include "TeensyInternalReset.h"
 #include "OperationFunctionTemplates.h"
 #include "pinList.h"
 
@@ -58,7 +58,7 @@ using std::string;
 #include <TimeLib.h>
 #include <DS1307RTC.h>
 
-#define NODEIDPRESET 3;     //NOT in use normally, for testing with the address IO register inactive
+#define PROPULSIONSYSNODEIDPRESET 3;     //NOT in use normally, for testing with the address IO register inactive
 
 // Timer for setting main loop debugging print rate
 elapsedMillis mainLoopTestingTimer;
@@ -72,9 +72,13 @@ bool abortHaltFlag; //creates halt flag that is a backup override of state machi
 
 ///// NODE DECLARATION /////
 //default sets to max nodeID intentionally to be bogus until otherwise set
-uint8_t nodeID;       //engine node = 2, prop node = 3, Pasafire node = 8
-uint8_t nodeIDfromEEPROM;   //nodeID read out of EEPROM
-bool nodeIDdeterminefromEEPROM;   //boolean flag for if startup is to run the nodeID detect read
+uint8_t ALARAnodeID;                      // ALARA hardware node address
+uint8_t ALARAnodeIDfromEEPROM;            //nodeID read out of EEPROM
+bool nodeIDdeterminefromEEPROM;           //boolean flag for if startup is to run the nodeID detect read
+uint32_t nodeIDdeterminefromEEPROM_errorFlag;
+uint8_t PropulsionSysNodeID;              //engine node = 2, prop node = 3, Pasafire node = 8
+uint8_t PropulsionSysNodeIDfromEEPROM;    //PropulsionSysNodeID read out of EEPROM
+uint32_t PropulsionSysNodeIDfromEEPROM_errorFlag;    //PropulsionSysNodeID read out of EEPROM
 
 ///// WATCHDOG SYSTEM /////
 elapsedMillis propulsionControlWatchdog;                  // Watchdog timer that must be reset by ground control over bus to prevent an autovent
@@ -118,8 +122,12 @@ int64_t currentCountdownForMain;
 // Change these up occasionally to reduce write cycle wear on the same bytes
 // I could use EEPROM itself to store current start byte of my data and automate iterating this. Good idea for future upgrade.
 uint8_t stateAddress{1};
-uint8_t nodeIDAddress{2};
-uint8_t nodeIDDetermineAddress{3};
+uint8_t PropulsionSysNodeIDAddress1{6};
+uint8_t PropulsionSysNodeIDAddress2{7};
+uint8_t PropulsionSysNodeIDAddress3{8};
+uint8_t nodeIDDetermineAddress1{12};
+uint8_t nodeIDDetermineAddress2{13};
+uint8_t nodeIDDetermineAddress3{14};
 
 ///// Temp Sensor for TC Cold Junction /////
 //Adafruit_MCP9808 tempsensor = Adafruit_MCP9808();
@@ -137,38 +145,7 @@ uint8_t nodeIDDetermineAddress{3};
 } */
 
 
-// -------------------------------------------------------------
-uint8_t NodeIDDetect(uint8_t nodeID, bool startup, bool nodeIDdetermine, uint8_t nodeIDfromEEPROM)       //Function to run the nodeID hardware addressing
-{
-  //if (startup)                          //only on startup assign the pins, not needed if running this in setup
-    //{
-    pinMode(pin::NodeAddress0, INPUT);
-    pinMode(pin::NodeAddress1, INPUT);
-    pinMode(pin::NodeAddress2, INPUT);
-    pinMode(pin::NodeAddress3, INPUT);
-    //}
-  
-  if (nodeIDdetermine)
-    {
-    //Read the four digital addressing pins
-    uint8_t NodeAddressBit0 = digitalRead(pin::NodeAddress0);
-    uint8_t NodeAddressBit1 = digitalRead(pin::NodeAddress1)<<1;
-    uint8_t NodeAddressBit2 = digitalRead(pin::NodeAddress2)<<2;
-    uint8_t NodeAddressBit3 = digitalRead(pin::NodeAddress3)<<3;
-    //Use the read addresses to convert into an int for nodeID
-    uint8_t NodeIDAddressRead;
-    NodeIDAddressRead = NodeAddressBit0 + NodeAddressBit1 + NodeAddressBit2 + NodeAddressBit3;
-    nodeID = NodeIDAddressRead;     //Setting the Global NodeID to detected NodeID
-    cli(); // disables interrupts to protect write command
-    EEPROM.update(nodeIDDetermineAddress, 0);                                 // Never use .write()
-    sei(); // reenables interrupts after write is completed
-    }
-  else
-    nodeID = nodeIDfromEEPROM;      //Need to ADD FEATURE where the nodeIDdetermine is variable so on a quick power cycle it doesn't reset, but a manual "shutdown" can
-  return nodeID;
-  
-}
-// -------------------------------------------------------------
+
 
 
 //-------------------------------------------------------//
@@ -177,18 +154,15 @@ void setup() {
 
   // -----Read Last State off eeprom and update -----
   currentVehicleState = static_cast<VehicleState>(EEPROM.read(stateAddress));
-  nodeIDfromEEPROM = EEPROM.read(nodeIDAddress);
-  nodeIDdeterminefromEEPROM = EEPROM.read(nodeIDDetermineAddress);
+  PropulsionSysNodeIDfromEEPROM = tripleEEPROMread(PropulsionSysNodeIDAddress1, PropulsionSysNodeIDAddress2, PropulsionSysNodeIDAddress3, PropulsionSysNodeIDfromEEPROM_errorFlag);
+  nodeIDdeterminefromEEPROM = tripleEEPROMread(nodeIDDetermineAddress1, nodeIDDetermineAddress2, nodeIDDetermineAddress3, nodeIDdeterminefromEEPROM_errorFlag);
   startupStateCheck(currentVehicleState, currentCommand);
 
   // ----- Run the Node ID Detection Function -----
   //nodeID = NodeIDDetect(nodeID, startup, nodeIDdeterminefromEEPROM, nodeIDfromEEPROM);
-  nodeID = NODEIDPRESET;       //For manually assigning NodeID isntead of the address read, make sure to comment out for operational use
+  PropulsionSysNodeID = PROPULSIONSYSNODEIDPRESET;       //For manually assigning NodeID isntead of the address read, make sure to comment out for operational use
   // Write 0 to byte for nodeIDDetermineAddress after reading it after a reset
-  cli(); // disables interrupts to protect write command
-  EEPROM.update(nodeIDDetermineAddress, 0);                                 // Never use .write()+
-  sei(); // reenables interrupts after write is completed
-
+  tripleEEPROMwrite(0, nodeIDDetermineAddress1, nodeIDDetermineAddress2, nodeIDDetermineAddress3);
 
   // ----- Hardware Abort Pin Setup ----- NOT CURRENTLY IN USE
   // This hardware abort allows us to command the Teensy to reboot itself by pulling the reset pin to ground
@@ -202,14 +176,14 @@ void setup() {
   // -----Initialize ADCs-----
   MCUADCSetup(adc);
 
-  // -----Run Valve NodeID Check-----
-  ValveNodeIDCheck(valveArray, nodeID);
+  // -----Run Valve PropulsionSysNodeID Check-----
+  ValveNodeIDCheck(valveArray, PropulsionSysNodeID);
 
-  // -----Run Valve NodeID Check-----
-  PyroNodeIDCheck(pyroArray, nodeID);
+  // -----Run Valve PropulsionSysNodeID Check-----
+  PyroNodeIDCheck(pyroArray, PropulsionSysNodeID);
 
-  // -----Run Sensor NodeID Check-----
-  SensorNodeIDCheck(sensorArray, nodeID);
+  // -----Run Sensor PropulsionSysNodeID Check-----
+  SensorNodeIDCheck(sensorArray, PropulsionSysNodeID);
 
   // -----Run Valve Setup-----
   valveSetUp(valveArray);
@@ -237,8 +211,8 @@ void setup() {
 void loop() 
 {
   //Display the node number with serial print statement start of each loop
-  //Serial.print("NodeID: ");
-  //Serial.println(nodeID);
+  //Serial.print("PropulsionSysNodeID: ");
+  //Serial.println(PropulsionSysNodeID);
 
 ///// Custom function for tracking miliseconds and seconds level system time for timestamping /////
 myTimeTrackingFunction();
@@ -273,8 +247,8 @@ Serial.println(timeSubSecondsMicros); */
 
   // -----Process Commands Here-----
   vehicleStateMachine(currentVehicleState, priorVehicleState, currentCommand, valveArray, pyroArray, autoSequenceArray, sensorArray, tankPressControllerArray, engineControllerArray, abortHaltFlag);
-  tankPressControllerTasks(tankPressControllerArray, nodeID);
-  engineControllerTasks(engineControllerArray, nodeID);
+  tankPressControllerTasks(tankPressControllerArray, PropulsionSysNodeID);
+  engineControllerTasks(engineControllerArray, PropulsionSysNodeID);
   controllerDeviceSync(currentVehicleState, priorVehicleState, currentCommand, valveArray, pyroArray, autoSequenceArray, sensorArray, tankPressControllerArray, engineControllerArray, abortHaltFlag);
   
   ////// ABORT FUNCTIONALITY!!!///// This is what overrides main valve and igniter processes! /////
@@ -286,9 +260,9 @@ Serial.println(timeSubSecondsMicros); */
   autoSequenceValveUpdate(valveArray, currentCountdownForMain);
   autoSequencePyroUpdate(pyroArray, currentCountdownForMain);   */
   // -----Advance needed propulsion system tasks (valve, pyro, sensors, . ..) ----- //
-  valveTasks(valveArray, nodeID);
-  pyroTasks(pyroArray, nodeID);
-  sensorTasks(sensorArray, adc, rocketDriverSeconds, rocketDriverMicros, nodeID);
+  valveTasks(valveArray, PropulsionSysNodeID);
+  pyroTasks(pyroArray, PropulsionSysNodeID);
+  sensorTasks(sensorArray, adc, rocketDriverSeconds, rocketDriverMicros, PropulsionSysNodeID);
   
 // For Testing to verify abort halt flag is active as intended
 /*     Serial.print("abortHaltFlag: ");
@@ -297,16 +271,15 @@ Serial.println(timeSubSecondsMicros); */
   // -----Update State on EEPROM -----
   cli(); // disables interrupts to protect write command
   EEPROM.update(stateAddress, static_cast<uint8_t>(currentVehicleState));      // Never use .write()
-  EEPROM.update(nodeIDAddress, nodeID);                                 // Never use .write()
   sei(); // reenables interrupts after write is completed
 
   // CAN State Report and Sensor data send Functions
-  CAN2PropSystemStateReport(Can0, currentVehicleState, currentCommand, valveArray, pyroArray, abortHaltFlag, nodeID);
-  CAN2AutosequenceTimerReport(Can0, autoSequenceArray, abortHaltFlag, nodeID);
-  CAN2SensorArraySend(Can0, sensorArray, nodeID, CANSensorReportConverted);
+  CAN2PropSystemStateReport(Can0, currentVehicleState, currentCommand, valveArray, pyroArray, abortHaltFlag, PropulsionSysNodeID);
+  CAN2AutosequenceTimerReport(Can0, autoSequenceArray, abortHaltFlag, PropulsionSysNodeID);
+  CAN2SensorArraySend(Can0, sensorArray, PropulsionSysNodeID, CANSensorReportConverted);
 
   // Reset function to reboot Teensy with internal reset register
-  TeensyInternalReset(localNodeResetFlag, nodeIDDetermineAddress, nodeID);
+  TeensyInternalReset(localNodeResetFlag, nodeIDDetermineAddress1, nodeIDDetermineAddress2, nodeIDDetermineAddress3);
 
   if (mainLoopTestingTimer >= 500)
   {
@@ -334,7 +307,7 @@ Serial.println(timeSubSecondsMicros); */
     for(auto valve : valveArray)
     {
     
-        if (valve->getValveNodeID() == nodeID)
+        if (valve->getValveNodeID() == PropulsionSysNodeID)
         {
             Serial.print("ValveID: ");
             Serial.print(static_cast<uint8_t>(valve->getValveID()));
@@ -354,5 +327,5 @@ Serial.println(timeSubSecondsMicros); */
 
 // Resets the startup bool, DO NOT REMOVE
 startup = false;
-  //Serial.println("main loop ran");
+  Serial.println("main loop ran");
 }

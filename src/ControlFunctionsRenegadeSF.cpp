@@ -575,6 +575,8 @@ void missionStateMachine(VehicleState& currentState, VehicleState& priorState, C
 
 void controllerDeviceSync(VehicleState& currentState, VehicleState& priorState, Command& currentCommand, const std::array<Valve*, NUM_VALVES>& valveArray, const std::array<Pyro*, NUM_PYROS>& pyroArray, const std::array<AutoSequence*, NUM_AUTOSEQUENCES>& autoSequenceArray, const std::array<MCU_SENSOR*, NUM_SENSORS>& sensorArray, const std::array<TankPressController*, NUM_TANKPRESSCONTROLLERS>& tankPressControllerArray, const std::array<EngineController*, NUM_ENGINECONTROLLERS>& engineControllerArray, bool & haltFlag)
 {
+    cli(); // disables interrupts during controller sync to protect from partial propulsion system states
+    
     //Serial.println("Is this even on???");
         // COPV
         valveArray.at(HiPress_ArrayPointer)->setState(tankPressControllerArray.at(HighPressTankController_ArrayPointer)->getPrimaryPressValveState());
@@ -593,6 +595,8 @@ void controllerDeviceSync(VehicleState& currentState, VehicleState& priorState, 
         valveArray.at(FuelVent_ArrayPointer)->setState(engineControllerArray.at(Engine1Controller_ArrayPointer)->getPneumaticVentState());
         pyroArray.at(FuelDomeReg_ArrayPointer)->setState(engineControllerArray.at(Engine1Controller_ArrayPointer)->getIgniter1State());
         pyroArray.at(FuelDomeRegVent_ArrayPointer)->setState(engineControllerArray.at(Engine1Controller_ArrayPointer)->getIgniter2State());
+    
+    sei(); // reenables interrupts after controller sync
 
     // Print Statement for debugging
     //Serial.print(static_cast<uint8_t>(valveArray.at(LoxVent_ArrayPointer)->getState()));
