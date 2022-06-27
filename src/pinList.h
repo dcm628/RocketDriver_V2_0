@@ -18,11 +18,11 @@
 #define ALARA_ANALOG_3_3RAIL A23
 #define ALARA_ANALOG_5RAIL A24
 
-// Digital Inputs
-#define ALARA_DIGITAL_ADDRESS_1 
-#define ALARA_DIGITAL_ADDRESS_2 
-#define ALARA_DIGITAL_ADDRESS_3 
-#define ALARA_DIGITAL_ADDRESS_4 
+// Digital I/O for MUXed addressing system (or V2 plain digital inputs?)
+#define ALARA_DIGITAL_ADDRESS_1 0   // need to assign pins
+#define ALARA_DIGITAL_ADDRESS_2 0
+#define ALARA_DIGITAL_ADDRESS_3 0
+#define ALARA_DIGITAL_ADDRESS_4 0
 
 // Digital Outputs
 #define ALARA_DIGITAL_EXTERNAL_1 
@@ -97,7 +97,7 @@
 
 #endif
 
-// NON ALARA prior gen stuff below
+/* // NON ALARA prior gen stuff below
 namespace pin
 {
     
@@ -114,6 +114,6 @@ namespace pin
     // const int abort{};
 
 
-};
+}; */
 
 #endif

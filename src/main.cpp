@@ -1,10 +1,11 @@
-// RocketDriver Propulsion Control and Data Acquisition - Embedded System Node Program
+// RocketDriver V2.0 Propulsion Control and Data Acquisition - Embedded System Node Program
 // Originally by Dan Morgan and Mat Arnold
-// For Renegade, Pasafire, Beach Launch Team, and more
+// For Renegade, Beach Launch Team, Brandon Summers' personal machinations and more
 //
 //
 // -------------------------------------------------------------
 // Use top level define conditional to determine which system the code is operating
+// Maintain definition header sets for a given propulsion system and update here accordingly
 #define RENEGADESF
 
 //----- Renegade Static Fire Stand -----
@@ -67,7 +68,6 @@ elapsedMillis mainLoopTestingTimer;
 uint8_t fakeCANmsg;
 
 bool localNodeResetFlag = false; //flag to trigger register reset from commanded reset over CAN
-
 bool abortHaltFlag; //creates halt flag that is a backup override of state machine
 
 ///// NODE DECLARATION /////
@@ -96,15 +96,9 @@ CAN_message_t rxmsg;
 CAN_message_t extended;
 bool CANSensorReportConverted = false;
 
-int value = 0;
-int counter = 0;
-//int MCUtempPIN = 70;  //?? Not sure, I was trying to figure out how to read direct from the non Teensy MCU pin
-//int MCUtempraw;
+const int CAN2busSpeed = 500000; //baudrate - do not set above 500000 for full distance run bunker to pad
 
-int busSpeed0 = 500000; //baudrate - do not set above 500000 for full distance run bunker to pad
-int busSpeed1 = 500000; //baudrate - do not set above 500000 for full distance run bunker to pad
-
-bool startup{true}; // bool for storing if this is the first loop on startup, ESSENTIAL FOR STATE MACHINE OPERATION
+bool startup{true}; // bool for storing if this is the first loop on startup, ESSENTIAL FOR STATE MACHINE OPERATION (maybe not anymore?)
 
 uint32_t loopCount {0};// for debugging
 
@@ -115,45 +109,46 @@ VehicleState priorVehicleState;
 MissionState currentMissionState(MissionState::passive);
 MissionState priorMissionState;
 
+uint32_t vehicleStateAddressfromEEPROM_errorFlag;
+uint32_t missionStateAddressfromEEPROM_errorFlag;
+
 //AutoSequence stuff for main
 int64_t currentCountdownForMain;
 
-// Set EEPROM address for storing states
+////// Set EEPROM addresses
 // Change these up occasionally to reduce write cycle wear on the same bytes
 // I could use EEPROM itself to store current start byte of my data and automate iterating this. Good idea for future upgrade.
-uint8_t stateAddress{1};
-uint8_t PropulsionSysNodeIDAddress1{6};
-uint8_t PropulsionSysNodeIDAddress2{7};
-uint8_t PropulsionSysNodeIDAddress3{8};
-uint8_t nodeIDDetermineAddress1{12};
-uint8_t nodeIDDetermineAddress2{13};
-uint8_t nodeIDDetermineAddress3{14};
+uint16_t vehicleStateAddress1{4};
+uint16_t vehicleStateAddress2{5};
+uint16_t vehicleStateAddress3{6};
+uint16_t missionStateAddress1{7};
+uint16_t missionStateAddress2{8};
+uint16_t missionStateAddress3{9};
+uint16_t PropulsionSysNodeIDAddress1{16};
+uint16_t PropulsionSysNodeIDAddress2{17};
+uint16_t PropulsionSysNodeIDAddress3{18};
+uint16_t nodeIDDetermineAddress1{19};
+uint16_t nodeIDDetermineAddress2{20};
+uint16_t nodeIDDetermineAddress3{21};
 
-///// Temp Sensor for TC Cold Junction /////
+///// Temp Sensor for TC Cold Junction /////        ----- Move into sensor classes (if this is even retained)
 //Adafruit_MCP9808 tempsensor = Adafruit_MCP9808();
 //int roundedtemp;
-
-
-// -------------------------------------------------------------
-// abort reset function -- NOT TESTED IN CURRENT VERSION, needs to be worked on
-/* void abortReset()
-{
-  cli();
-  EEPROM.update(stateAddress, static_cast<uint8_t>(State::abort)); // write abort code to the EEPROM to be read on restart
-  sei();
-  digitalWrite(pin::reset, 0);                                       // set reset pin low to restart
-} */
-
-
-
-
 
 //-------------------------------------------------------//
 void setup() {
   startup = true;   // Necessary to set startup to true for the code loop so it does one startup loop for the state machine before entering regular loop behavior
 
+  // ----- MUX Setups for ALARA -----
+  // Board Addressing MUX
+  MUXSetup(true, ALARA_DIGITAL_ADDRESS_1, ALARA_DIGITAL_ADDRESS_2, ALARA_DIGITAL_ADDRESS_3, ALARA_DIGITAL_ADDRESS_4);
+  // NOR Flash CS pin MUX
+  MUXSetup(false, ALARA_NOR_CS1, ALARA_NOR_CS2, ALARA_NOR_CS3);
+
   // -----Read Last State off eeprom and update -----
-  currentVehicleState = static_cast<VehicleState>(EEPROM.read(stateAddress));
+  currentVehicleState = static_cast<VehicleState>(tripleEEPROMread(vehicleStateAddress1, vehicleStateAddress2, vehicleStateAddress3, vehicleStateAddressfromEEPROM_errorFlag));
+  currentMissionState = static_cast<MissionState>(tripleEEPROMread(missionStateAddress1, missionStateAddress2, missionStateAddress3, missionStateAddressfromEEPROM_errorFlag));
+  
   PropulsionSysNodeIDfromEEPROM = tripleEEPROMread(PropulsionSysNodeIDAddress1, PropulsionSysNodeIDAddress2, PropulsionSysNodeIDAddress3, PropulsionSysNodeIDfromEEPROM_errorFlag);
   nodeIDdeterminefromEEPROM = tripleEEPROMread(nodeIDDetermineAddress1, nodeIDDetermineAddress2, nodeIDDetermineAddress3, nodeIDdeterminefromEEPROM_errorFlag);
   startupStateCheck(currentVehicleState, currentCommand);
@@ -198,14 +193,14 @@ void setup() {
   sensorSetUp(sensorArray);
 
   // pin setup
+  // NEEDS LOTS OF UPDATES FOR ALARA V2
   pinMode(LED_BUILTIN, OUTPUT);
+  
 
-  Serial.begin(9600);
+  Serial.begin(9600); // Value is arbitrary on Teensy, it will initialize at the MCU dictate baud rate regardless what you feed this
 
 ///// CAN0 and CAN1 Initialize /////
-  Can0.begin(busSpeed0);
-  //Can1.begin(busSpeed1); //commented out for Teensy3.5, also not current in use even on 3.6
-  pinMode(pin::led, OUTPUT);
+  Can0.begin(CAN2busSpeed);
 }
 
 void loop() 
@@ -260,18 +255,18 @@ Serial.println(timeSubSecondsMicros); */
   autoSequenceValveUpdate(valveArray, currentCountdownForMain);
   autoSequencePyroUpdate(pyroArray, currentCountdownForMain);   */
   // -----Advance needed propulsion system tasks (valve, pyro, sensors, . ..) ----- //
+  cli(); // disables interrupts to ensure complete propulsion output state is driven
   valveTasks(valveArray, PropulsionSysNodeID);
   pyroTasks(pyroArray, PropulsionSysNodeID);
+  sei(); // reenables interrupts after propulsion output state set is completed
   sensorTasks(sensorArray, adc, rocketDriverSeconds, rocketDriverMicros, PropulsionSysNodeID);
   
 // For Testing to verify abort halt flag is active as intended
 /*     Serial.print("abortHaltFlag: ");
     Serial.println(abortHaltFlag); */
 
-  // -----Update State on EEPROM -----
-  cli(); // disables interrupts to protect write command
-  EEPROM.update(stateAddress, static_cast<uint8_t>(currentVehicleState));      // Never use .write()
-  sei(); // reenables interrupts after write is completed
+  // -----Update States on EEPROM -----
+  tripleEEPROMwrite(static_cast<uint8_t>(currentVehicleState), vehicleStateAddress1, vehicleStateAddress2, vehicleStateAddress3);
 
   // CAN State Report and Sensor data send Functions
   CAN2PropSystemStateReport(Can0, currentVehicleState, currentCommand, valveArray, pyroArray, abortHaltFlag, PropulsionSysNodeID);
@@ -279,11 +274,12 @@ Serial.println(timeSubSecondsMicros); */
   CAN2SensorArraySend(Can0, sensorArray, PropulsionSysNodeID, CANSensorReportConverted);
 
   // Reset function to reboot Teensy with internal reset register
+  // Need to figure out how to rework using this feature with reworked ID system
   TeensyInternalReset(localNodeResetFlag, nodeIDDetermineAddress1, nodeIDDetermineAddress2, nodeIDDetermineAddress3);
 
   if (mainLoopTestingTimer >= 500)
   {
-  //Main Loop state and command print statements - for testing only
+  //Main Loop state and command print statements - for testing only - TEMPORARY BULLSHIT
   Serial.print("currentVehicleState :");
   Serial.println(static_cast<uint8_t>(currentVehicleState));
   Serial.print("currentCommand :");
@@ -319,7 +315,6 @@ Serial.println(timeSubSecondsMicros); */
 
     }
 
-
   mainLoopTestingTimer = 0; //resets timer to zero each time the loop prints
   //Serial.print("EEPROM Node ID Read :");
   //Serial.println(EEPROM.read(nodeIDAddress));
@@ -327,5 +322,6 @@ Serial.println(timeSubSecondsMicros); */
 
 // Resets the startup bool, DO NOT REMOVE
 startup = false;
-  Serial.println("main loop ran");
+  
+  //Serial.println("main loop ran");
 }
