@@ -3,7 +3,7 @@
 
 #include "ActuatorClass.h"
 #include <array>
-#include "pinList.h"
+#include "ALARApinDefines.h"
 
 //Igniter outputs - setting up almost the same as valves but no PWM
 #define NUM_ACTUATORS 2

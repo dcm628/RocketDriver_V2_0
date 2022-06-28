@@ -3,7 +3,7 @@
 
 #include "EngineControllerClass.h"
 #include <array>
-#include "pinList.h"
+#include "ALARApinDefines.h"
 
 #define NUM_ENGINECONTROLLERS 1
 

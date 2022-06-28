@@ -3,7 +3,7 @@
 
 #include "PyroClass.h"
 #include <array>
-#include "pinList.h"
+#include "ALARApinDefines.h"
 
 // Define number of pyros here
 #define NUM_PYROS 10

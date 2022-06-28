@@ -3,7 +3,7 @@
 
 #include "ValveClass.h"
 #include <array>
-#include "pinList.h"
+#include "ALARApinDefines.h"
 
 // Define number of valves here
 #define NUM_VALVES 12

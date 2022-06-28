@@ -3,7 +3,7 @@
 
 #include "TankPressControllerClass.h"
 #include <array>
-#include "pinList.h"
+#include "ALARApinDefines.h"
 
 
 #define NUM_TANKPRESSCONTROLLERS 3
