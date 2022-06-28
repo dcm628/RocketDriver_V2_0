@@ -53,7 +53,7 @@ using std::string;
 #include "CANRead.h"
 #include "CANWrite.h"
 #include "OperationFunctionTemplates.h"
-#include "pinList.h"
+#include "ALARApinDefines.h"
 
 //Trying to figure out RTC stuff with these libs
 #include <TimeLib.h>
@@ -96,7 +96,7 @@ CAN_message_t rxmsg;
 CAN_message_t extended;
 bool CANSensorReportConverted = false;
 
-const int CAN2busSpeed = 500000; //baudrate - do not set above 500000 for full distance run bunker to pad
+const int CAN2busSpeed = 500000; // CAN2.0 baudrate - do not set above 500000 for full distance run bunker to pad
 
 bool startup{true}; // bool for storing if this is the first loop on startup, ESSENTIAL FOR STATE MACHINE OPERATION (maybe not anymore?)
 
@@ -143,7 +143,7 @@ void setup() {
   // Board Addressing MUX
   MUXSetup(true, ALARA_DIGITAL_ADDRESS_1, ALARA_DIGITAL_ADDRESS_2, ALARA_DIGITAL_ADDRESS_3, ALARA_DIGITAL_ADDRESS_4);
   // NOR Flash CS pin MUX
-  MUXSetup(false, ALARA_NOR_CS1, ALARA_NOR_CS2, ALARA_NOR_CS3);
+  MUXSetup(false, ALARA_NOR_S0, ALARA_NOR_S1, ALARA_NOR_S2);
 
   // -----Read Last State off eeprom and update -----
   currentVehicleState = static_cast<VehicleState>(tripleEEPROMread(vehicleStateAddress1, vehicleStateAddress2, vehicleStateAddress3, vehicleStateAddressfromEEPROM_errorFlag));
@@ -154,7 +154,7 @@ void setup() {
   startupStateCheck(currentVehicleState, currentCommand);
 
   // ----- Run the Node ID Detection Function -----
-  //nodeID = NodeIDDetect(nodeID, startup, nodeIDdeterminefromEEPROM, nodeIDfromEEPROM);
+  //nodeID = NodeIDDetect(nodeID, nodeIDdeterminefromEEPROM, nodeIDfromEEPROM); // - OVERHAUL WITH NEW FUNCTION AND SYSTEM
   PropulsionSysNodeID = PROPULSIONSYSNODEIDPRESET;       //For manually assigning NodeID isntead of the address read, make sure to comment out for operational use
   // Write 0 to byte for nodeIDDetermineAddress after reading it after a reset
   tripleEEPROMwrite(0, nodeIDDetermineAddress1, nodeIDDetermineAddress2, nodeIDDetermineAddress3);
