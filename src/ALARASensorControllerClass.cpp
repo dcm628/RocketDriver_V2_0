@@ -34,7 +34,7 @@ void ALARAV2SensorController::ALARAconfigurationSensorSet(ALARASN& thisALARA)
     setMS5607_active(thisALARA.SAM_M8Q_GPS_present);
 
     // This section is for board rev dependant sensors NOT listed explicitly in configurations
-    if (static_cast<uint8_t>(thisALARA.boardRev) == 1)          // ALARA V2_0
+/*     if (static_cast<uint8_t>(thisALARA.boardRev) == 1)          // ALARA V2_0
     {
         ALARA_5VRail_active = true;
         ALARA_3V3Rail_active = true;
@@ -44,5 +44,18 @@ void ALARAV2SensorController::ALARAconfigurationSensorSet(ALARASN& thisALARA)
         ALARA_VINRail_active = true;
         ALARA_5VRail_active = true;
         ALARA_3V3Rail_active = true;
+    } */
+// if below works then delete the staticcast version above
+    if (thisALARA.boardRev == ALARAversion::V2_0)          // ALARA V2_0
+    {
+        ALARA_5VRail_active = true;
+        ALARA_3V3Rail_active = true;
     }
+    if (thisALARA.boardRev == ALARAversion::V2_1)          // ALARA V2_1
+    {
+        ALARA_VINRail_active = true;
+        ALARA_5VRail_active = true;
+        ALARA_3V3Rail_active = true;
+    }
+
 }
